@@ -235,11 +235,29 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] text-slate-400 mb-1">메인 페이지 제목</label>
-                                <input type="text" id="edit-main-header" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <input type="text" id="edit-main-header" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs mb-2">
+                                <label class="block text-[11px] text-slate-400 mb-1">제목 폰트 스타일</label>
+                                <select id="edit-main-header-font" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                    <option value="font-sans-custom">Inter</option>
+                                    <option value="font-serif-custom">나눔명조</option>
+                                    <option value="font-mono-custom">JetBrains Mono</option>
+                                    <option value="font-cinzel-custom">Cinzel</option>
+                                    <option value="font-gugi-custom">구기 (Gugi)</option>
+                                    <option value="font-black-sans-custom">블랙한산스</option>
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-[11px] text-slate-400 mb-1">메인 페이지 서브타이틀</label>
-                                <input type="text" id="edit-main-subtitle" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <input type="text" id="edit-main-subtitle" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs mb-2">
+                                <label class="block text-[11px] text-slate-400 mb-1">서브타이틀 폰트 스타일</label>
+                                <select id="edit-main-sub-font" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                    <option value="font-sans-custom">Inter</option>
+                                    <option value="font-serif-custom">나눔명조</option>
+                                    <option value="font-mono-custom">JetBrains Mono</option>
+                                    <option value="font-cinzel-custom">Cinzel</option>
+                                    <option value="font-gugi-custom">구기 (Gugi)</option>
+                                    <option value="font-black-sans-custom">블랙한산스</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -509,7 +527,7 @@
             });
         }
 
-        function applyConfigToDOM() {
+       function applyConfigToDOM() {
             const bodyEl = document.getElementById('site-body');
             bodyEl.className = `h-full antialiased selection:bg-purple-500 selection:text-white transition-colors duration-500 ${window.appConfig.fontFamily || 'font-sans-custom'}`;
 
@@ -560,8 +578,14 @@
 
             const mainHead = document.getElementById('txt-main-header');
             const mainSub = document.getElementById('txt-main-subtitle');
-            if (mainHead) mainHead.innerText = window.appConfig.mainHeaderTitle || DEFAULT_CONFIG.mainHeaderTitle;
-            if (mainSub) mainSub.innerText = window.appConfig.mainHeaderSubtitle || DEFAULT_CONFIG.mainHeaderSubtitle;
+            if (mainHead) {
+                mainHead.innerText = window.appConfig.mainHeaderTitle || DEFAULT_CONFIG.mainHeaderTitle;
+                mainHead.className = `text-3xl md:text-5xl font-black tracking-tight text-white mb-3 ${window.appConfig.mainHeaderFont || 'font-sans-custom'}`;
+            }
+            if (mainSub) {
+                mainSub.innerText = window.appConfig.mainHeaderSubtitle || DEFAULT_CONFIG.mainHeaderSubtitle;
+                mainSub.className = `text-slate-400 text-base md:text-lg ${window.appConfig.mainSubFont || 'font-sans-custom'}`;
+            }
 
             const commentTitle = document.getElementById('txt-comment-title');
             const commentSub = document.getElementById('txt-comment-sub');
@@ -581,6 +605,9 @@
                     introBgmEl.load();
                 }
             }
+
+            renderTracks();
+        }
 
             renderTracks();
         }
@@ -959,6 +986,9 @@
             document.getElementById('edit-font-family').value = window.appConfig.fontFamily || 'font-sans-custom';
             document.getElementById('edit-color-theme').value = window.appConfig.colorTheme || 'theme-purple';
 
+            document.getElementById('edit-main-header-font').value = window.appConfig.mainHeaderFont || 'font-sans-custom';
+            document.getElementById('edit-main-sub-font').value = window.appConfig.mainSubFont || 'font-sans-custom';
+
             renderAdminSequencesEditor();
             renderAdminTracksEditor();
             switchAdminTab('tab1');
@@ -1200,6 +1230,9 @@
 
             updated.fontFamily = document.getElementById('edit-font-family').value;
             updated.colorTheme = document.getElementById('edit-color-theme').value;
+
+            updated.mainHeaderFont = document.getElementById('edit-main-header-font').value;
+            updated.mainSubFont = document.getElementById('edit-main-sub-font').value;
 
             updated.textSequences = [];
             const seqElements = document.querySelectorAll('#sequences-editor-container > div');
