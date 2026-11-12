@@ -37,7 +37,17 @@
 
         <!-- 1) STEP 1 SCREEN -->
         <div id="step1-screen" class="absolute inset-0 z-40 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-1000 px-6">
-            <div id="text-sequence-container" class="max-w-3xl text-center min-h-[160px] flex items-center justify-center w-full"></div>
+            
+            <!-- 커스텀 로딩 바 컨테이너 (3초간 가속되면서 차오름) -->
+            <div id="custom-loading-wrapper" class="flex flex-col items-center justify-center space-y-4 transition-opacity duration-700">
+                <div class="text-purple-400 font-mono text-xs tracking-widest animate-pulse" id="loading-text">Now Loading... 0%</div>
+                <div class="w-48 h-[2px] bg-slate-800 rounded-full overflow-hidden">
+                    <div id="loading-bar-fill" class="h-full bg-purple-500 w-0"></div>
+                </div>
+            </div>
+
+            <!-- 기존 텍스트 시퀀스 컨테이너 (로딩이 끝난 후 나타남) -->
+            <div id="text-sequence-container" class="max-w-3xl text-center min-h-[160px] flex items-center justify-center w-full opacity-0 transition-opacity duration-700 pointer-events-none"></div>
             
             <div id="step1-banner-wrapper" class="absolute bottom-8 right-8 z-30 flex items-center gap-3 opacity-0 pointer-events-none transition-opacity duration-700">
                 <button onclick="advanceToStep2()" id="step1-next-btn" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-2xl shadow-2xl transition flex items-center gap-2 border border-purple-400/40 animate-bounce cursor-pointer">
@@ -737,11 +747,56 @@
         };
 
         function startStep1Sequence() {
+            function startStep1Sequence() {
             if (step1Timer) clearTimeout(step1Timer);
             currentStepIndex = 0;
             const banner = document.getElementById('step1-banner-wrapper');
             if (banner) banner.classList.add('opacity-0', 'pointer-events-none');
-            renderCurrentTextSequence();
+
+            const loadingWrapper = document.getElementById('custom-loading-wrapper');
+            const textContainer = document.getElementById('text-sequence-container');
+            const barFill = document.getElementById('loading-bar-fill');
+            const loadingText = document.getElementById('loading-text');
+
+            if (loadingWrapper && textContainer && barFill) {
+                loadingWrapper.style.opacity = '1';
+                loadingWrapper.classList.remove('pointer-events-none');
+                textContainer.style.opacity = '0';
+                textContainer.classList.add('pointer-events-none');
+                barFill.style.width = '0%';
+
+                let startTime = null;
+                const duration = 3000; // 3초 로딩
+
+                function animateLoading(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    let elapsed = timestamp - startTime;
+                    let progress = Math.min(elapsed / duration, 1);
+                    
+                    // 점점 빨라지는 가속 효과 (Ease-In)
+                    let easedProgress = Math.pow(progress, 2); 
+                    let percentage = Math.floor(easedProgress * 100);
+
+                    barFill.style.width = percentage + '%';
+                    if (loadingText) loadingText.innerText = `Now Loading... ${percentage}%`;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animateLoading);
+                    } else {
+                        // 로딩 완료 후 로딩바 페이드아웃 및 텍스트 시퀀스 시작
+                        loadingWrapper.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingWrapper.classList.add('pointer-events-none');
+                            textContainer.style.opacity = '1';
+                            textContainer.classList.remove('pointer-events-none');
+                            renderCurrentTextSequence();
+                        }, 500);
+                    }
+                }
+                requestAnimationFrame(animateLoading);
+            } else {
+                renderCurrentTextSequence();
+            }
         }
 
         function renderCurrentTextSequence() {
