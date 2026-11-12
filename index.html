@@ -6,17 +6,19 @@
     <title>Sisyphus Soundtracks</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        .font-sans-custom { font-family: 'Inter', sans-serif; }
+        .font-serif-custom { font-family: 'Nanum Myeongjo', serif; }
+        .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
     </style>
 </head>
-<body class="h-full bg-slate-950 text-slate-100 antialiased selection:bg-purple-500 selection:text-white">
+<body id="site-body" class="h-full bg-slate-950 text-slate-100 font-sans-custom antialiased selection:bg-purple-500 selection:text-white transition-colors duration-500">
 
     <!-- Top Navigation Bar for General Visitors -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/60 px-4 md:px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <span class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse"></span>
+            <span id="nav-dot" class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse"></span>
             <span id="nav-header-title" class="text-xs font-bold uppercase tracking-widest text-slate-300">SOUNDTRACK ARCHIVE</span>
         </div>
         <div class="flex items-center gap-2">
@@ -77,7 +79,27 @@
                     <h2 id="txt-main-header" class="text-3xl md:text-5xl font-black tracking-tight text-white mb-3">Sisyphus Soundtracks</h2>
                     <p id="txt-main-subtitle" class="text-slate-400 text-base md:text-lg"> Musics by Artists of Hattiman</p>
                 </div>
-                <div id="tracks-grid" class="flex flex-col gap-8 pb-24"></div>
+                
+                <!-- Tracks List -->
+                <div id="tracks-grid" class="flex flex-col gap-8 pb-16"></div>
+
+                <!-- Guestbook / Comments Section -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl mb-24 space-y-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-1">💬 관람객 한줄평</h3>
+                        <p class="text-xs text-slate-400">공연 음악에 대한 감상을 남겨주세요.</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <input type="text" id="guest-name" placeholder="닉네임" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-purple-500">
+                        <textarea id="guest-comment" rows="2" placeholder="한줄평을 입력하세요..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-purple-500"></textarea>
+                        <button onclick="submitGuestComment()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer shadow-lg">한줄평 남기기</button>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800">
+                        <div id="comments-list" class="space-y-3"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -101,13 +123,15 @@
         <div class="max-w-4xl w-full mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl my-auto flex flex-col max-h-[90vh]">
             
             <!-- Modal Header & Tabs -->
-            <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-6 shrink-0">
-                <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-6 shrink-0 flex-wrap gap-3">
+                <div class="flex items-center gap-3 flex-wrap">
                     <h3 class="text-xl font-bold text-white">⚙️ 통합 관리자 스튜디오</h3>
-                    <div class="flex bg-slate-950 border border-slate-800 p-1 rounded-xl">
-                        <button onclick="switchAdminTab('tab1')" id="btn-tab1" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-white bg-purple-600 cursor-pointer">1페이지 (텍스트 시퀀스)</button>
-                        <button onclick="switchAdminTab('tab2')" id="btn-tab2" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer">2페이지 (오프닝 GIF/인트로)</button>
-                        <button onclick="switchAdminTab('tab3')" id="btn-tab3" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer">3페이지 (메인 트랙/음악)</button>
+                    <div class="flex bg-slate-950 border border-slate-800 p-1 rounded-xl flex-wrap">
+                        <button onclick="switchAdminTab('tab1')" id="btn-tab1" class="px-3 py-1.5 text-xs font-bold rounded-lg transition text-white bg-purple-600 cursor-pointer">1페이지 (시퀀스)</button>
+                        <button onclick="switchAdminTab('tab2')" id="btn-tab2" class="px-3 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer">2페이지 (오프닝)</button>
+                        <button onclick="switchAdminTab('tab3')" id="btn-tab3" class="px-3 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer">3페이지 (트랙)</button>
+                        <button onclick="switchAdminTab('tab4')" id="btn-tab4" class="px-3 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer">디자인 설정</button>
+                        <button onclick="switchAdminTab('tab5')" id="btn-tab5" class="px-3 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer">한줄평 관리</button>
                     </div>
                 </div>
                 <button onclick="closeAdminEditModal()" class="text-slate-400 hover:text-white text-sm font-semibold cursor-pointer">✕ 닫기</button>
@@ -116,10 +140,10 @@
             <!-- Tab Contents Wrapper -->
             <div class="overflow-y-auto flex-1 pr-2 space-y-6">
                 
-                <!-- TAB 1: Step 1 Sequences & BG Images -->
+                <!-- TAB 1: Step 1 Sequences -->
                 <div id="admin-tab1-content" class="space-y-6">
                     <div class="flex items-center justify-between">
-                        <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">1페이지 텍스트 시퀀스 및 배경 사진 관리</h4>
+                        <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">1페이지 텍스트 시퀀스 및 사진 관리</h4>
                         <button onclick="addTextSequenceItem()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer">+ 시퀀스 추가</button>
                     </div>
                     <div id="sequences-editor-container" class="space-y-4"></div>
@@ -130,24 +154,32 @@
                     <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">2페이지 오프닝 미디어 설정</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">상단 태그 (splashTag)</label>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">상단 태그</label>
                             <input type="text" id="edit-splash-tag" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 타이틀 (splashTitle)</label>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 타이틀</label>
                             <input type="text" id="edit-splash-title" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 서브타이틀 (splashSubtitle)</label>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 서브타이틀</label>
                             <input type="text" id="edit-splash-subtitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">인트로 GIF 파일명 (깃허브 경로 예: stone.gif)</label>
-                            <input type="text" id="edit-intro-video" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                            <label class="block text-xs font-bold text-slate-400 mb-1">인트로 GIF 파일명 또는 파일 업로드</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="edit-intro-video" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500" placeholder="stone.gif">
+                                <input type="file" id="file-upload-intro" onchange="handleFileUpload(event, 'edit-intro-video')" class="hidden">
+                                <button type="button" onclick="document.getElementById('file-upload-intro').click()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl cursor-pointer">파일 선택</button>
+                            </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">인트로 BGM 파일명 (예: music1.mp3)</label>
-                            <input type="text" id="edit-intro-bgm" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                            <label class="block text-xs font-bold text-slate-400 mb-1">인트로 BGM 파일명 또는 파일 업로드</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="edit-intro-bgm" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500" placeholder="music1.mp3">
+                                <input type="file" id="file-upload-bgm" onchange="handleFileUpload(event, 'edit-intro-bgm')" class="hidden">
+                                <button type="button" onclick="document.getElementById('file-upload-bgm').click()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl cursor-pointer">파일 선택</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -171,11 +203,40 @@
                     <div id="tracks-editor-container" class="space-y-6"></div>
                 </div>
 
+                <!-- TAB 4: Design Tone & Theme Settings -->
+                <div id="admin-tab4-content" class="space-y-6 hidden">
+                    <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">디자인 톤 & 테마 설정</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">사이트 전체 글꼴 (Font Family)</label>
+                            <select id="edit-font-family" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                                <option value="font-sans-custom">Inter (모던 산세리프)</option>
+                                <option value="font-serif-custom">나눔명조 (고전적/진중함)</option>
+                                <option value="font-mono-custom">JetBrains Mono (디지털/테크니컬)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">컬러 테마 (Color Palette)</label>
+                            <select id="edit-color-theme" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                                <option value="theme-purple">딥 나이트 & 일렉트릭 퍼플 (기본)</option>
+                                <option value="theme-amber">인더스트리얼 모노 & 앰버 (황동빛 골드)</option>
+                                <option value="theme-cyber">사이버 시안 & 네온 블루</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 5: Comments Moderation -->
+                <div id="admin-tab5-content" class="space-y-6 hidden">
+                    <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">방문자 한줄평 관리 (삭제 기능)</h4>
+                    <div id="admin-comments-list" class="space-y-3"></div>
+                </div>
+
             </div>
 
             <!-- Modal Footer -->
-            <div class="pt-4 mt-6 border-t border-slate-800 flex items-center justify-between shrink-0">
-                <p class="text-xs text-slate-400">변경사항은 클라우드 DB에 저장되어 모든 기기에 즉시 반영됩니다.</p>
+            <div class="pt-4 mt-6 border-t border-slate-800 flex items-center justify-between shrink-0 flex-wrap gap-3">
+                <p class="text-xs text-slate-400">변경사항은 클라우드 DB에 즉시 반영됩니다.</p>
                 <button onclick="saveAdminConfig()" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-xl shadow-lg transition cursor-pointer">모든 변경사항 저장하기</button>
             </div>
 
@@ -188,7 +249,7 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addData, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCKDXd0Kdb0-qJxilBH5Io3303pbMUvi_EQ",
@@ -206,6 +267,8 @@
         const DEFAULT_CONFIG = {
             transitionEffect: "fade",
             introBgmUrl: "music1.mp3",
+            fontFamily: "font-sans-custom",
+            colorTheme: "theme-purple",
             textSequences: [
                 { text: "이 극의 모든 음악은", enterEffect: "fade", exitEffect: "fade", duration: 2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" },
                 { text: "오직", enterEffect: "slide", exitEffect: "zoom", duration: 1.2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" },
@@ -213,8 +276,6 @@
                 { text: "치밀하게 설계된 작품입니다", enterEffect: "fade", exitEffect: "fade", duration: 1.6, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" }
             ],
             introVideo: "stone.gif",
-            introVideoFit: "contain",
-            introVideoPosition: "center",
             splashDuration: 60,
             splashTag: "WoRRY & CHUXGSEOB & Sigol Monkey",
             splashTitle: "Music of Sisyphus",
@@ -222,17 +283,13 @@
             mainHeaderTitle: "Sisyphus Soundtracks",
             mainHeaderSubtitle: "Musics by Artists of Hattiman",
             tracks: [
-                { title: "Track 01. Lullaby of Inner Child", scene: "1장 찰나의 평화", description: "성년의 지친 일상을 위로하는 자장가입니다. <br><br> 반복되는 일상 속, 성년은 작은 인정을 원동력으로 <br> 무기력한 반복을 이어갑니다.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+1+Lullaby+of+Inner+Child", audioUrl: "music2.mp3" },
-                { title: "Track 02. Endless Drops", scene: "2장 성년의 고뇌", description: "멈춰진 설거지 사이로 스며드는 물방울과 노이즈로 <br> 성년의 균열의 감각을 여는 Sound Scape입니다. <br><br> 급작스런 선택의 기로에 놓인 성년의 감정을 대변합니다.", image: "https://placehold.co/600x400/311042/f3e8ff?text=Scene+2+Endless+Drops", audioUrl: "music3.mp3" },
-                { title: "Track 03. Gaslighting", scene: "2장 의사의 속삭임", description: "성년의 내면 깊숙히 내재되어 있던 <br> 날카로운 복수의 감각을 일깨우는 전자음악입니다. <br><br> 고민하는 성년을 대하던 의사는 음악과 함께 <br> 마치 성년의 마음을 대변하듯 거칠게 변해갑니다.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+3+Gaslighting", audioUrl: "music4.mp3" },
-                { title: "Track 04. Modern Cowboy", scene: "3장 서부의 무법자 ", description: "카우보이를 현대적으로 풀어낸 IDM입니다. <br><br> 일상으로 돌아온 성년은 모든 것이 다르게 느껴집니다. <br> 대단한 일을 해낸 것 같은, 살아있는 감각.. <br> <br> 순간, 어릴 적 비디오에서 봤던 카우보이가 떠오릅니다. <br> 내가.. 영웅이 된 것 같은 느낌.. ", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+4+Modern+Cowboy", audioUrl: "music7.mp3" },
-                { title: "Track 05. You're Not Sisyphus", scene: "4장 성년의 분열", description: "복수를 두고 고민하는 성년에게 내면들이 속삭입니다. <br> <br> 넌 뭘 위해 복수를 하고 싶은거야? 넌 왜 견뎌온거야? <br>거창한 이유따윈 없잖아. 넌 시지프스가 아냐. <br> 그냥 도망친 겁쟁이지.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+5+You're+Not+sisyphus", audioUrl: "music6.mp3" },
-                { title: "Track 06. Bring Us Home", scene: "5장 성년과 병철", description: "환상 속에서 성년은 아버지를 마주합니다 <br> 껍질이 벗겨진 둘은 똑같이 고통스런 존재일 뿐..<br> <br> 이 부조리한 감각 사이로 <br> 괴로운 세상 속 평안을 바라는 노래가 울려퍼집니다. <br><br> 마치 두 사람을 계속 바라봐 온 것처럼..", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+6+Bring+Us+Home", audioUrl: "music5.mp3" },
-                { title: "Ending. 돌멩이의 꿈", scene: "Ending.", description: "우리는 끝 없이 돌을 굴립니다. <br> 괴롭고 힘들게 쉬지않고 끊임없이 <br> 부조리한 이 세상을 견디면서요. <br><br> 하지만, 돌이 바라본 우리는 어떨까요 <br> 어쩌면.. 행복할까요?", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Ending+돌멩이의+꿈", audioUrl: "music8.mp3" }
+                { title: "Track 01. Lullaby of Inner Child", scene: "1장 찰나의 평화", description: "성년의 지친 일상을 위로하는 자장가입니다. <br><br> 반복되는 일상 속, 성년은 작은 인정을 원동력으로 <br> 무기력한 반복을 이어갑니다.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+1", audioUrl: "music2.mp3" },
+                { title: "Track 02. Endless Drops", scene: "2장 성년의 고뇌", description: "멈춰진 설거지 사이로 스며드는 물방울과 노이즈로 <br> 성년의 균열의 감각을 여는 Sound Scape입니다.", image: "https://placehold.co/600x400/311042/f3e8ff?text=Scene+2", audioUrl: "music3.mp3" }
             ]
         };
 
         window.appConfig = DEFAULT_CONFIG;
+        window.commentsList = [];
         let currentStepIndex = 0;
         let step1Timer = null;
 
@@ -247,10 +304,11 @@
                     window.appConfig = DEFAULT_CONFIG;
                 }
             } catch (e) {
-                console.error("Firebase 로딩 실패, 기본값 사용:", e);
+                console.error("Firebase 로딩 실패:", e);
                 window.appConfig = DEFAULT_CONFIG;
             }
             applyConfigToDOM();
+            loadComments();
             switchPage('step1');
         }
 
@@ -268,7 +326,120 @@
             }
         };
 
+        // Comments Functions
+        async function loadComments() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "comments"));
+                window.commentsList = [];
+                querySnapshot.forEach((docSnap) => {
+                    window.commentsList.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderComments();
+            } catch (e) {
+                console.error("한줄평 로딩 실패:", e);
+            }
+        }
+
+        window.submitGuestComment = async function() {
+            const nameEl = document.getElementById('guest-name');
+            const commentEl = document.getElementById('guest-comment');
+            if (!nameEl.value.trim() || !commentEl.value.trim()) {
+                alert("닉네임과 내용을 모두 입력해주세요.");
+                return;
+            }
+            try {
+                const commentData = {
+                    name: nameEl.value.trim(),
+                    comment: commentEl.value.trim(),
+                    date: new Date().toLocaleString()
+                };
+                await setDoc(doc(db, "comments", "_" + Date.now()), commentData);
+                nameEl.value = '';
+                commentEl.value = '';
+                loadComments();
+                alert("한줄평이 등록되었습니다!");
+            } catch (e) {
+                console.error("등록 실패:", e);
+            }
+        };
+
+        window.deleteComment = async function(commentId) {
+            if (!confirm("정말 이 한줄평을 삭제하시겠습니까?")) return;
+            try {
+                await deleteDoc(doc(db, "comments", commentId));
+                loadComments();
+                renderAdminComments();
+            } catch (e) {
+                console.error("삭제 실패:", e);
+            }
+        };
+
+        function renderComments() {
+            const listEl = document.getElementById('comments-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            if (window.commentsList.length === 0) {
+                listEl.innerHTML = '<p class="text-xs text-slate-500 text-center py-2">등록된 한줄평이 없습니다.</p>';
+                return;
+            }
+            window.commentsList.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center justify-between';
+                div.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-bold text-purple-400">${item.name}</span>
+                            <span class="text-[10px] text-slate-500">${item.date || ''}</span>
+                        </div>
+                        <p class="text-xs text-slate-300">${item.comment}</p>
+                    </div>
+                `;
+                listEl.appendChild(div);
+            });
+        }
+
+        function renderAdminComments() {
+            const listEl = document.getElementById('admin-comments-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            if (window.commentsList.length === 0) {
+                listEl.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">등록된 한줄평이 없습니다.</p>';
+                return;
+            }
+            window.commentsList.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center justify-between gap-4';
+                div.innerHTML = `
+                    <div class="overflow-hidden">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-bold text-purple-400">${item.name}</span>
+                            <span class="text-[10px] text-slate-500">${item.date || ''}</span>
+                        </div>
+                        <p class="text-xs text-slate-300 break-words">${item.comment}</p>
+                    </div>
+                    <button onclick="deleteComment('${item.id}')" class="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold rounded-lg shrink-0 cursor-pointer">삭제</button>
+                `;
+                listEl.appendChild(div);
+            });
+        }
+
+        // Apply Design & Config to DOM
         function applyConfigToDOM() {
+            const bodyEl = document.getElementById('site-body');
+            bodyEl.className = `h-full antialiased selection:bg-purple-500 selection:text-white transition-colors duration-500 ${window.appConfig.fontFamily || 'font-sans-custom'}`;
+
+            // Color Themes
+            if (window.appConfig.colorTheme === 'theme-amber') {
+                bodyEl.style.backgroundColor = '#09090b';
+                bodyEl.style.color = '#f4f4f5';
+            } else if (window.appConfig.colorTheme === 'theme-cyber') {
+                bodyEl.style.backgroundColor = '#030712';
+                bodyEl.style.color = '#e0f2fe';
+            } else {
+                bodyEl.style.backgroundColor = '#020617';
+                bodyEl.style.color = '#f8fafc';
+            }
+
             const setVal = (id, val) => {
                 const el = document.getElementById(id);
                 if (el) el.innerText = val || '';
@@ -280,12 +451,6 @@
             setVal('nav-header-title', window.appConfig.splashTag || DEFAULT_CONFIG.splashTag);
             setVal('txt-main-header', window.appConfig.mainHeaderTitle || DEFAULT_CONFIG.mainHeaderTitle);
             setVal('txt-main-subtitle', window.appConfig.mainHeaderSubtitle || DEFAULT_CONFIG.mainHeaderSubtitle);
-
-            const gifEl = document.getElementById('splash-gif-el');
-            if (gifEl) {
-                gifEl.style.objectFit = window.appConfig.introVideoFit || 'cover';
-                gifEl.style.objectPosition = window.appConfig.introVideoPosition || 'center';
-            }
 
             const introBgmEl = document.getElementById('intro-bgm-audio');
             if (introBgmEl && window.appConfig.introBgmUrl) {
@@ -466,8 +631,6 @@
 
             if (gifEl) {
                 gifEl.src = window.appConfig.introVideo || DEFAULT_CONFIG.introVideo;
-                gifEl.style.objectFit = window.appConfig.introVideoFit || 'cover';
-                gifEl.style.objectPosition = window.appConfig.introVideoPosition || 'center';
             }
 
             const durationSec = (window.appConfig.splashDuration !== undefined) ? Number(window.appConfig.splashDuration) : 30;
@@ -556,6 +719,18 @@
             switchPage('main');
         };
 
+        // File upload helper (converts local file to base64 string for instant preview & storage)
+        window.handleFileUpload = function(event, targetInputId) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById(targetInputId).value = e.target.result;
+                alert("파일이 성공적으로 로드되었습니다!");
+            };
+            reader.readAsDataURL(file);
+        };
+
         // Admin Modal Controls & Tabs
         window.openAdminLoginModal = function() {
             document.getElementById('admin-pw-input').value = '';
@@ -575,30 +750,34 @@
         };
 
         window.switchAdminTab = function(tabName) {
-            ['tab1', 'tab2', 'tab3'].forEach(t => {
+            ['tab1', 'tab2', 'tab3', 'tab4', 'tab5'].forEach(t => {
                 const content = document.getElementById(`admin-${t}-content`);
                 const btn = document.getElementById(`btn-${t}`);
                 if (t === tabName) {
                     content.classList.remove('hidden');
-                    btn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-white bg-purple-600 cursor-pointer";
+                    btn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition text-white bg-purple-600 cursor-pointer";
                 } else {
                     content.classList.add('hidden');
-                    btn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer";
+                    btn.className = "px-3 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer";
                 }
             });
+            if (tabName === 'tab5') {
+                renderAdminComments();
+            }
         };
 
         window.openAdminEditModal = function() {
-            // Tab 2 fields
             document.getElementById('edit-splash-tag').value = window.appConfig.splashTag || '';
             document.getElementById('edit-splash-title').value = window.appConfig.splashTitle || '';
             document.getElementById('edit-splash-subtitle').value = window.appConfig.splashSubtitle || '';
             document.getElementById('edit-intro-video').value = window.appConfig.introVideo || '';
             document.getElementById('edit-intro-bgm').value = window.appConfig.introBgmUrl || '';
 
-            // Tab 3 fields
             document.getElementById('edit-main-header').value = window.appConfig.mainHeaderTitle || '';
             document.getElementById('edit-main-subtitle').value = window.appConfig.mainHeaderSubtitle || '';
+
+            document.getElementById('edit-font-family').value = window.appConfig.fontFamily || 'font-sans-custom';
+            document.getElementById('edit-color-theme').value = window.appConfig.colorTheme || 'theme-purple';
 
             renderAdminSequencesEditor();
             renderAdminTracksEditor();
@@ -610,7 +789,6 @@
             document.getElementById('admin-edit-modal').classList.add('hidden');
         };
 
-        // Tab 1 Dynamic Sequences Renderer
         function renderAdminSequencesEditor() {
             const container = document.getElementById('sequences-editor-container');
             if (!container) return;
@@ -630,8 +808,12 @@
                             <input type="text" id="seq-text-${idx}" value="${seq.text || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
                         </div>
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">배경 사진 파일명 (깃허브 경로)</label>
-                            <input type="text" id="seq-bg-${idx}" value="${seq.bgImage || ''}" placeholder="예: image1.png" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                            <label class="block text-[11px] text-slate-400 mb-1">배경 사진 (경로 또는 파일 선택)</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="seq-bg-${idx}" value="${seq.bgImage || ''}" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs" placeholder="image1.png">
+                                <input type="file" id="file-seq-${idx}" onchange="handleFileUpload(event, 'seq-bg-${idx}')" class="hidden">
+                                <button type="button" onclick="document.getElementById('file-seq-${idx}').click()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl cursor-pointer">파일</button>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-[11px] text-slate-400 mb-1">지속 시간 (초)</label>
@@ -654,7 +836,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">글꼴 크기 (Tailwind)</label>
+                            <label class="block text-[11px] text-slate-400 mb-1">글꼴 크기</label>
                             <select id="seq-size-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
                                 <option value="text-2xl" ${seq.fontSize === 'text-2xl' ? 'selected' : ''}>2XL</option>
                                 <option value="text-3xl" ${seq.fontSize === 'text-3xl' ? 'selected' : ''}>3XL</option>
@@ -665,8 +847,8 @@
                         <div>
                             <label class="block text-[11px] text-slate-400 mb-1">폰트 두께/스타일</label>
                             <select id="seq-weight-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
-                                <option value="font-normal" ${seq.fontWeight === 'font-normal' ? 'selected' : ''}>일반 (Normal)</option>
-                                <option value="font-bold" ${seq.fontWeight === 'font-bold' ? 'selected' : ''}>볼드 (Bold)</option>
+                                <option value="font-normal" ${seq.fontWeight === 'font-normal' ? 'selected' : ''}>일반</option>
+                                <option value="font-bold" ${seq.fontWeight === 'font-bold' ? 'selected' : ''}>볼드</option>
                                 <option value="font-extrabold" ${seq.fontWeight === 'font-extrabold' ? 'selected' : ''}>엑스트라 볼드</option>
                                 <option value="italic font-bold" ${seq.fontWeight === 'italic font-bold' ? 'selected' : ''}>이텔릭 + 볼드</option>
                             </select>
@@ -699,7 +881,6 @@
             renderAdminSequencesEditor();
         };
 
-        // Tab 3 Dynamic Tracks Editor
         function renderAdminTracksEditor() {
             const container = document.getElementById('tracks-editor-container');
             if (!container) return;
@@ -715,7 +896,7 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">트랙 제목 (Title)</label>
+                            <label class="block text-[11px] text-slate-400 mb-1">트랙 제목</label>
                             <input type="text" id="track-title-${idx}" value="${track.title || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
                         </div>
                         <div>
@@ -723,15 +904,23 @@
                             <input type="text" id="track-scene-${idx}" value="${track.scene || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
                         </div>
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">썸네일 이미지 파일명 또는 URL</label>
-                            <input type="text" id="track-image-${idx}" value="${track.image || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                            <label class="block text-[11px] text-slate-400 mb-1">썸네일 이미지 (경로 또는 파일 선택)</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="track-image-${idx}" value="${track.image || ''}" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <input type="file" id="file-track-img-${idx}" onchange="handleFileUpload(event, 'track-image-${idx}')" class="hidden">
+                                <button type="button" onclick="document.getElementById('file-track-img-${idx}').click()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl cursor-pointer">파일</button>
+                            </div>
                         </div>
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">음악 파일명 (깃허브 경로, 예: music2.mp3)</label>
-                            <input type="text" id="track-audio-${idx}" value="${track.audioUrl || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                            <label class="block text-[11px] text-slate-400 mb-1">음악 파일 (경로 또는 파일 선택)</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="track-audio-${idx}" value="${track.audioUrl || ''}" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <input type="file" id="file-track-audio-${idx}" onchange="handleFileUpload(event, 'track-audio-${idx}')" class="hidden">
+                                <button type="button" onclick="document.getElementById('file-track-audio-${idx}').click()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl cursor-pointer">파일</button>
+                            </div>
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-[11px] text-slate-400 mb-1">트랙 설명 (&lt;br&gt; 태그 활용 가능)</label>
+                            <label class="block text-[11px] text-slate-400 mb-1">트랙 설명 (&lt;br&gt; 활용 가능)</label>
                             <textarea id="track-desc-${idx}" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">${track.description || ''}</textarea>
                         </div>
                     </div>
@@ -753,22 +942,21 @@
             renderAdminTracksEditor();
         };
 
-        // Master Save Function
         window.saveAdminConfig = function() {
             let updated = JSON.parse(JSON.stringify(window.appConfig));
 
-            // Gather Tab 2 values
             updated.splashTag = document.getElementById('edit-splash-tag').value;
             updated.splashTitle = document.getElementById('edit-splash-title').value;
             updated.splashSubtitle = document.getElementById('edit-splash-subtitle').value;
             updated.introVideo = document.getElementById('edit-intro-video').value;
             updated.introBgmUrl = document.getElementById('edit-intro-bgm').value;
 
-            // Gather Tab 3 header values
             updated.mainHeaderTitle = document.getElementById('edit-main-header').value;
             updated.mainHeaderSubtitle = document.getElementById('edit-main-subtitle').value;
 
-            // Gather Tab 1 Sequences
+            updated.fontFamily = document.getElementById('edit-font-family').value;
+            updated.colorTheme = document.getElementById('edit-color-theme').value;
+
             updated.textSequences = [];
             const seqElements = document.querySelectorAll('#sequences-editor-container > div');
             seqElements.forEach((_, idx) => {
@@ -784,7 +972,6 @@
                 });
             });
 
-            // Gather Tab 3 Tracks
             updated.tracks = [];
             const trackElements = document.querySelectorAll('#tracks-editor-container > div');
             trackElements.forEach((_, idx) => {
@@ -800,7 +987,6 @@
             window.saveAdminConfigToFirebase(updated);
         };
 
-        // Initial Load on Page Open
         window.onload = function () {
             loadConfigFromFirebase();
         };
