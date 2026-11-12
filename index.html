@@ -6,11 +6,14 @@
     <title>Sisyphus Soundtracks</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=JetBrains+Mono:wght@400;700&family=Cinzel:wght@600;800&family=Gugi&family=Black+Han+Sans&display=swap" rel="stylesheet">
     <style>
         .font-sans-custom { font-family: 'Inter', sans-serif; }
         .font-serif-custom { font-family: 'Nanum Myeongjo', serif; }
         .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
+        .font-cinzel-custom { font-family: 'Cinzel', serif; }
+        .font-gugi-custom { font-family: 'Gugi', cursive; }
+        .font-black-sans-custom { font-family: 'Black Han Sans', sans-serif; }
     </style>
 </head>
 <body id="site-body" class="h-full bg-slate-950 text-slate-100 font-sans-custom antialiased selection:bg-purple-500 selection:text-white transition-colors duration-500">
@@ -37,7 +40,7 @@
             <div id="text-sequence-container" class="max-w-3xl text-center min-h-[160px] flex items-center justify-center"></div>
             
             <div id="step1-banner-wrapper" class="absolute bottom-8 right-8 z-30 flex items-center gap-3 opacity-0 pointer-events-none transition-opacity duration-700">
-                <button onclick="advanceToStep2()" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-2xl shadow-2xl transition flex items-center gap-2 border border-purple-400/40 animate-bounce cursor-pointer">
+                <button onclick="advanceToStep2()" id="step1-next-btn" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-2xl shadow-2xl transition flex items-center gap-2 border border-purple-400/40 animate-bounce cursor-pointer">
                     <span>다음 오프닝으로 이동</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
@@ -51,7 +54,7 @@
                     <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
                     <p class="text-xs text-purple-300 font-medium tracking-wider">오프닝 미디어 로딩 중...</p>
                 </div>
-                <img id="splash-gif-el" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000" src="" alt="Intro GIF" onload="onSplashLoaded()" onerror="onSplashError()">
+                <img id="splash-gif-el" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000" src="" alt="Intro GIF" onload="window.onSplashLoaded()" onerror="window.onSplashError()">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-black/30 to-slate-950/40 pointer-events-none z-10"></div>
             </div>
 
@@ -65,7 +68,7 @@
                 <div id="splash-timer-badge" class="bg-slate-900/80 backdrop-blur-md border border-slate-800 text-slate-400 text-xs px-3 py-2 rounded-xl hidden">
                     자동 이동: <span id="timer-count" class="font-bold text-purple-400">30</span>초 후
                 </div>
-                <button onclick="enterMainSite()" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-2xl shadow-xl transition border border-purple-400/30 backdrop-blur-md flex items-center gap-2 cursor-pointer">
+                <button onclick="enterMainSite()" id="step2-enter-btn" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-2xl shadow-xl transition border border-purple-400/30 backdrop-blur-md flex items-center gap-2 cursor-pointer">
                     <span>메인으로 입장하기</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
@@ -86,14 +89,14 @@
                 <!-- Guestbook / Comments Section -->
                 <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl mb-24 space-y-6">
                     <div>
-                        <h3 class="text-xl font-bold text-white mb-1">💬 관람객 한줄평</h3>
-                        <p class="text-xs text-slate-400">공연 음악에 대한 감상을 남겨주세요.</p>
+                        <h3 id="txt-comment-title" class="text-xl font-bold text-white mb-1">💬 관람객 한줄평</h3>
+                        <p id="txt-comment-sub" class="text-xs text-slate-400">공연 음악에 대한 감상을 남겨주세요.</p>
                     </div>
                     
                     <div class="space-y-3">
                         <input type="text" id="guest-name" placeholder="닉네임" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-purple-500">
                         <textarea id="guest-comment" rows="2" placeholder="한줄평을 입력하세요..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-purple-500"></textarea>
-                        <button onclick="submitGuestComment()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer shadow-lg">한줄평 남기기</button>
+                        <button onclick="submitGuestComment()" id="comment-submit-btn" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer shadow-lg">한줄평 남기기</button>
                     </div>
 
                     <div class="pt-4 border-t border-slate-800">
@@ -154,16 +157,43 @@
                     <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">2페이지 오프닝 미디어 설정</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">상단 태그</label>
-                            <input type="text" id="edit-splash-tag" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                            <label class="block text-xs font-bold text-slate-400 mb-1">상단 태그 텍스트</label>
+                            <input type="text" id="edit-splash-tag" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500 mb-2">
+                            <label class="block text-[11px] text-slate-400 mb-1">상단 태그 글꼴 스타일</label>
+                            <select id="edit-splash-tag-font" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="font-sans-custom">Inter</option>
+                                <option value="font-serif-custom">나눔명조</option>
+                                <option value="font-mono-custom">JetBrains Mono</option>
+                                <option value="font-cinzel-custom">Cinzel</option>
+                                <option value="font-gugi-custom">구기 (Gugi)</option>
+                                <option value="font-black-sans-custom">블랙한산스</option>
+                            </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 타이틀</label>
-                            <input type="text" id="edit-splash-title" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 타이틀 텍스트</label>
+                            <input type="text" id="edit-splash-title" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500 mb-2">
+                            <label class="block text-[11px] text-slate-400 mb-1">오프닝 타이틀 글꼴 스타일</label>
+                            <select id="edit-splash-title-font" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="font-sans-custom">Inter</option>
+                                <option value="font-serif-custom">나눔명조</option>
+                                <option value="font-mono-custom">JetBrains Mono</option>
+                                <option value="font-cinzel-custom">Cinzel</option>
+                                <option value="font-gugi-custom">구기 (Gugi)</option>
+                                <option value="font-black-sans-custom">블랙한산스</option>
+                            </select>
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 서브타이틀</label>
-                            <input type="text" id="edit-splash-subtitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 서브타이틀 텍스트</label>
+                            <input type="text" id="edit-splash-subtitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500 mb-2">
+                            <label class="block text-[11px] text-slate-400 mb-1">오프닝 서브타이틀 글꼴 스타일</label>
+                            <select id="edit-splash-sub-font" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="font-sans-custom">Inter</option>
+                                <option value="font-serif-custom">나눔명조</option>
+                                <option value="font-mono-custom">JetBrains Mono</option>
+                                <option value="font-cinzel-custom">Cinzel</option>
+                                <option value="font-gugi-custom">구기 (Gugi)</option>
+                                <option value="font-black-sans-custom">블랙한산스</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-400 mb-1">인트로 GIF 파일명 또는 파일 업로드</label>
@@ -184,22 +214,59 @@
                     </div>
                 </div>
 
-                <!-- TAB 3: Main Tracks & Music -->
+                <!-- TAB 3: Main Tracks & Music & Guestbook Settings -->
                 <div id="admin-tab3-content" class="space-y-6 hidden">
                     <div class="flex items-center justify-between">
-                        <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">3페이지 메인 음악 트랙 목록 관리</h4>
+                        <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">3페이지 메인 음악 트랙 및 한줄평 섹션 설정</h4>
                         <button onclick="addTrackItem()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer">+ 트랙 추가</button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-slate-800">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">메인 페이지 제목</label>
-                            <input type="text" id="edit-main-header" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">메인 페이지 서브타이틀</label>
-                            <input type="text" id="edit-main-subtitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                    
+                    <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-4">
+                        <h5 class="text-xs font-bold text-purple-300 uppercase">메인 페이지 헤더 설정</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">메인 페이지 제목</label>
+                                <input type="text" id="edit-main-header" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">메인 페이지 서브타이틀</label>
+                                <input type="text" id="edit-main-subtitle" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                            </div>
                         </div>
                     </div>
+
+                    <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-4">
+                        <h5 class="text-xs font-bold text-purple-300 uppercase">한줄평 섹션 텍스트 & 글꼴 설정</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">한줄평 섹션 타이틀</label>
+                                <input type="text" id="edit-comment-title-text" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs mb-2" placeholder="💬 관람객 한줄평">
+                                <label class="block text-[11px] text-slate-400 mb-1">타이틀 폰트 스타일</label>
+                                <select id="edit-comment-title-font" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                    <option value="font-sans-custom">Inter</option>
+                                    <option value="font-serif-custom">나눔명조</option>
+                                    <option value="font-mono-custom">JetBrains Mono</option>
+                                    <option value="font-cinzel-custom">Cinzel</option>
+                                    <option value="font-gugi-custom">구기 (Gugi)</option>
+                                    <option value="font-black-sans-custom">블랙한산스</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">한줄평 섹션 부제목</label>
+                                <input type="text" id="edit-comment-sub-text" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs mb-2" placeholder="공연 음악에 대한 감상을 남겨주세요.">
+                                <label class="block text-[11px] text-slate-400 mb-1">부제목 폰트 스타일</label>
+                                <select id="edit-comment-sub-font" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                    <option value="font-sans-custom">Inter</option>
+                                    <option value="font-serif-custom">나눔명조</option>
+                                    <option value="font-mono-custom">JetBrains Mono</option>
+                                    <option value="font-cinzel-custom">Cinzel</option>
+                                    <option value="font-gugi-custom">구기 (Gugi)</option>
+                                    <option value="font-black-sans-custom">블랙한산스</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="tracks-editor-container" class="space-y-6"></div>
                 </div>
 
@@ -208,11 +275,14 @@
                     <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">디자인 톤 & 테마 설정</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">사이트 전체 글꼴 (Font Family)</label>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">사이트 기본 글꼴 (Font Family)</label>
                             <select id="edit-font-family" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
                                 <option value="font-sans-custom">Inter (모던 산세리프)</option>
                                 <option value="font-serif-custom">나눔명조 (고전적/진중함)</option>
                                 <option value="font-mono-custom">JetBrains Mono (디지털/테크니컬)</option>
+                                <option value="font-cinzel-custom">Cinzel (신화적/시네마틱)</option>
+                                <option value="font-gugi-custom">구기 (Gugi - 묵직한 고딕)</option>
+                                <option value="font-black-sans-custom">블랙한산스 (Black Han Sans - 꽉찬 볼드)</option>
                             </select>
                         </div>
                         <div>
@@ -249,7 +319,7 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addData, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCKDXd0Kdb0-qJxilBH5Io3303pbMUvi_EQ",
@@ -270,21 +340,28 @@
             fontFamily: "font-sans-custom",
             colorTheme: "theme-purple",
             textSequences: [
-                { text: "이 극의 모든 음악은", enterEffect: "fade", exitEffect: "fade", duration: 2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" },
-                { text: "오직", enterEffect: "slide", exitEffect: "zoom", duration: 1.2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" },
-                { text: "이 공연만을 위해", enterEffect: "slide", exitEffect: "zoom", duration: 1.8, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" },
-                { text: "치밀하게 설계된 작품입니다", enterEffect: "fade", exitEffect: "fade", duration: 1.6, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" }
+                { text: "이 극의 모든 음악은", enterEffect: "fade", exitEffect: "fade", duration: 2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", fontStyle: "font-sans-custom", bgImage: "" },
+                { text: "오직", enterEffect: "slide", exitEffect: "zoom", duration: 1.2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", fontStyle: "font-sans-custom", bgImage: "" },
+                { text: "이 공연만을 위해", enterEffect: "slide", exitEffect: "zoom", duration: 1.8, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", fontStyle: "font-sans-custom", bgImage: "" },
+                { text: "치밀하게 설계된 작품입니다", enterEffect: "fade", exitEffect: "fade", duration: 1.6, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", fontStyle: "font-sans-custom", bgImage: "" }
             ],
             introVideo: "stone.gif",
             splashDuration: 60,
             splashTag: "WoRRY & CHUXGSEOB & Sigol Monkey",
+            splashTagFont: "font-sans-custom",
             splashTitle: "Music of Sisyphus",
+            splashTitleFont: "font-sans-custom",
             splashSubtitle: "시네마틱 + 전자음악 + Sound Scape => 부조리한 감각",
+            splashSubFont: "font-sans-custom",
             mainHeaderTitle: "Sisyphus Soundtracks",
             mainHeaderSubtitle: "Musics by Artists of Hattiman",
+            commentTitleText: "💬 관람객 한줄평",
+            commentTitleFont: "font-sans-custom",
+            commentSubText: "공연 음악에 대한 감상을 남겨주세요.",
+            commentSubFont: "font-sans-custom",
             tracks: [
-                { title: "Track 01. Lullaby of Inner Child", scene: "1장 찰나의 평화", description: "성년의 지친 일상을 위로하는 자장가입니다. <br><br> 반복되는 일상 속, 성년은 작은 인정을 원동력으로 <br> 무기력한 반복을 이어갑니다.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+1", audioUrl: "music2.mp3" },
-                { title: "Track 02. Endless Drops", scene: "2장 성년의 고뇌", description: "멈춰진 설거지 사이로 스며드는 물방울과 노이즈로 <br> 성년의 균열의 감각을 여는 Sound Scape입니다.", image: "https://placehold.co/600x400/311042/f3e8ff?text=Scene+2", audioUrl: "music3.mp3" }
+                { title: "Track 01. Lullaby of Inner Child", scene: "1장 찰나의 평화", description: "성년의 지친 일상을 위로하는 자장가입니다. <br><br> 반복되는 일상 속, 성년은 작은 인정을 원동력으로 <br> 무기력한 반복을 이어갑니다.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+1", audioUrl: "music2.mp3", titleFontStyle: "font-sans-custom", descFontStyle: "font-sans-custom" },
+                { title: "Track 02. Endless Drops", scene: "2장 성년의 고뇌", description: "멈춰진 설거지 사이로 스며드는 물방울과 노이즈로 <br> 성년의 균열의 감각을 여는 Sound Scape입니다.", image: "https://placehold.co/600x400/311042/f3e8ff?text=Scene+2", audioUrl: "music3.mp3", titleFontStyle: "font-sans-custom", descFontStyle: "font-sans-custom" }
             ]
         };
 
@@ -326,7 +403,6 @@
             }
         };
 
-        // Comments Functions
         async function loadComments() {
             try {
                 const querySnapshot = await getDocs(collection(db, "comments"));
@@ -423,34 +499,67 @@
             });
         }
 
-        // Apply Design & Config to DOM
         function applyConfigToDOM() {
             const bodyEl = document.getElementById('site-body');
             bodyEl.className = `h-full antialiased selection:bg-purple-500 selection:text-white transition-colors duration-500 ${window.appConfig.fontFamily || 'font-sans-custom'}`;
 
-            // Color Themes
+            const nextBtn = document.getElementById('step1-next-btn');
+            const enterBtn = document.getElementById('step2-enter-btn');
+            const commentBtn = document.getElementById('comment-submit-btn');
+
             if (window.appConfig.colorTheme === 'theme-amber') {
                 bodyEl.style.backgroundColor = '#09090b';
                 bodyEl.style.color = '#f4f4f5';
+                if (nextBtn) nextBtn.className = nextBtn.className.replace(/bg-\w+-600/, 'bg-amber-600 hover:bg-amber-500');
+                if (enterBtn) enterBtn.className = enterBtn.className.replace(/bg-\w+-600/, 'bg-amber-600 hover:bg-amber-500');
+                if (commentBtn) commentBtn.className = commentBtn.className.replace(/bg-\w+-600/, 'bg-amber-600 hover:bg-amber-500');
             } else if (window.appConfig.colorTheme === 'theme-cyber') {
                 bodyEl.style.backgroundColor = '#030712';
                 bodyEl.style.color = '#e0f2fe';
+                if (nextBtn) nextBtn.className = nextBtn.className.replace(/bg-\w+-600/, 'bg-cyan-600 hover:bg-cyan-500');
+                if (enterBtn) enterBtn.className = enterBtn.className.replace(/bg-\w+-600/, 'bg-cyan-600 hover:bg-cyan-500');
+                if (commentBtn) commentBtn.className = commentBtn.className.replace(/bg-\w+-600/, 'bg-cyan-600 hover:bg-cyan-500');
             } else {
                 bodyEl.style.backgroundColor = '#020617';
                 bodyEl.style.color = '#f8fafc';
             }
 
-            const setVal = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.innerText = val || '';
-            };
+            const tagEl = document.getElementById('txt-splash-tag');
+            const titleEl = document.getElementById('txt-splash-title');
+            const subEl = document.getElementById('txt-splash-subtitle');
 
-            setVal('txt-splash-tag', window.appConfig.splashTag || DEFAULT_CONFIG.splashTag);
-            setVal('txt-splash-title', window.appConfig.splashTitle || DEFAULT_CONFIG.splashTitle);
-            setVal('txt-splash-subtitle', window.appConfig.splashSubtitle || DEFAULT_CONFIG.splashSubtitle);
-            setVal('nav-header-title', window.appConfig.splashTag || DEFAULT_CONFIG.splashTag);
-            setVal('txt-main-header', window.appConfig.mainHeaderTitle || DEFAULT_CONFIG.mainHeaderTitle);
-            setVal('txt-main-subtitle', window.appConfig.mainHeaderSubtitle || DEFAULT_CONFIG.mainHeaderSubtitle);
+            if (tagEl) {
+                tagEl.innerText = window.appConfig.splashTag || DEFAULT_CONFIG.splashTag;
+                tagEl.className = `inline-block text-xs font-bold tracking-widest text-purple-400 uppercase bg-purple-950/70 border border-purple-500/30 px-3 py-1 rounded-full mb-4 shadow-lg backdrop-blur-md ${window.appConfig.splashTagFont || 'font-sans-custom'}`;
+            }
+            if (titleEl) {
+                titleEl.innerText = window.appConfig.splashTitle || DEFAULT_CONFIG.splashTitle;
+                titleEl.className = `text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-4 drop-shadow-lg ${window.appConfig.splashTitleFont || 'font-sans-custom'}`;
+            }
+            if (subEl) {
+                subEl.innerText = window.appConfig.splashSubtitle || DEFAULT_CONFIG.splashSubtitle;
+                subEl.className = `text-sm md:text-base text-slate-300 font-medium drop-shadow ${window.appConfig.splashSubFont || 'font-sans-custom'}`;
+            }
+
+            const navHeader = document.getElementById('nav-header-title');
+            if (navHeader) navHeader.innerText = window.appConfig.splashTag || DEFAULT_CONFIG.splashTag;
+
+            const mainHead = document.getElementById('txt-main-header');
+            const mainSub = document.getElementById('txt-main-subtitle');
+            if (mainHead) mainHead.innerText = window.appConfig.mainHeaderTitle || DEFAULT_CONFIG.mainHeaderTitle;
+            if (mainSub) mainSub.innerText = window.appConfig.mainHeaderSubtitle || DEFAULT_CONFIG.mainHeaderSubtitle;
+
+            // Comment Section Application
+            const commentTitle = document.getElementById('txt-comment-title');
+            const commentSub = document.getElementById('txt-comment-sub');
+            if (commentTitle) {
+                commentTitle.innerText = window.appConfig.commentTitleText || DEFAULT_CONFIG.commentTitleText;
+                commentTitle.className = `text-xl font-bold text-white mb-1 ${window.appConfig.commentTitleFont || 'font-sans-custom'}`;
+            }
+            if (commentSub) {
+                commentSub.innerText = window.appConfig.commentSubText || DEFAULT_CONFIG.commentSubText;
+                commentSub.className = `text-xs text-slate-400 ${window.appConfig.commentSubFont || 'font-sans-custom'}`;
+            }
 
             const introBgmEl = document.getElementById('intro-bgm-audio');
             if (introBgmEl && window.appConfig.introBgmUrl) {
@@ -463,13 +572,20 @@
             renderTracks();
         }
 
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
         function renderTracks() {
             const grid = document.getElementById('tracks-grid');
             if (!grid) return;
             grid.innerHTML = '';
             (window.appConfig.tracks || []).forEach((track, index) => {
                 const card = document.createElement('div');
-                card.className = 'bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col w-full group';
+                card.className = `bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col w-full group`;
                 card.innerHTML = `
                     <div class="relative w-full aspect-video md:aspect-[16/9] overflow-hidden bg-slate-950 cursor-pointer" onclick="toggleTrackAudio(${index})">
                         <img src="${track.image || 'https://placehold.co/600x400/1e1b4b/e9d5ff?text=No+Image'}" alt="${track.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x400/1e1b4b/e9d5ff?text=Image+Error'">
@@ -484,17 +600,28 @@
                     </div>
                     <div class="p-6 md:p-8 flex flex-col space-y-4">
                         <div>
-                            <h4 class="text-xl font-bold text-white mb-2">${track.title}</h4>
-                            <p class="text-sm text-slate-300 leading-relaxed">${track.description}</p>
+                            <h4 class="text-xl font-bold text-white mb-2 ${track.titleFontStyle || 'font-sans-custom'}">${track.title}</h4>
+                            <p class="text-sm text-slate-300 leading-relaxed ${track.descFontStyle || 'font-sans-custom'}">${track.description}</p>
                         </div>
                         <div class="pt-2">
                             ${track.audioUrl ? `
-                                <audio id="audio-el-${index}" class="hidden" src="${track.audioUrl}" preload="none"></audio>
-                                <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-950/60 border border-slate-800/80 px-4 py-3 rounded-2xl">
-                                    <span id="track-status-${index}">음악 재생 대기중</span>
-                                    <button onclick="toggleTrackAudio(${index})" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl transition shadow-md cursor-pointer">
-                                        재생 / 일시정지
-                                    </button>
+                                <audio id="audio-el-${index}" src="${track.audioUrl}" preload="metadata"></audio>
+                                <div class="space-y-2 bg-slate-950/60 border border-slate-800/80 p-4 rounded-2xl">
+                                    <!-- Progress Bar -->
+                                    <div class="flex items-center gap-3">
+                                        <span id="current-time-${index}" class="text-[11px] text-slate-400 w-8 text-right font-mono">0:00</span>
+                                        <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden cursor-pointer relative" onclick="seekAudio(event, ${index})">
+                                            <div id="progress-bar-${index}" class="absolute top-0 left-0 h-full bg-purple-500 w-0 transition-all duration-100"></div>
+                                        </div>
+                                        <span id="duration-time-${index}" class="text-[11px] text-slate-400 w-8 font-mono">0:00</span>
+                                    </div>
+                                    <!-- Status & Controls -->
+                                    <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+                                        <span id="track-status-${index}">음악 재생 대기중</span>
+                                        <button onclick="toggleTrackAudio(${index})" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl transition shadow-md cursor-pointer">
+                                            재생 / 일시정지
+                                        </button>
+                                    </div>
                                 </div>
                             ` : `
                                 <div class="text-xs text-slate-500 italic py-2 text-center bg-slate-950/40 rounded-xl border border-slate-800">등록된 오디오가 없습니다.</div>
@@ -503,8 +630,41 @@
                     </div>
                 `;
                 grid.appendChild(card);
+
+                const audioEl = document.getElementById(`audio-el-${index}`);
+                if (audioEl) {
+                    audioEl.onloadedmetadata = () => {
+                        const durEl = document.getElementById(`duration-time-${index}`);
+                        if (durEl) durEl.innerText = formatTime(audioEl.duration);
+                    };
+                    audioEl.ontimeupdate = () => {
+                        const curEl = document.getElementById(`current-time-${index}`);
+                        const barEl = document.getElementById(`progress-bar-${index}`);
+                        if (curEl) curEl.innerText = formatTime(audioEl.currentTime);
+                        if (barEl && audioEl.duration) {
+                            const percent = (audioEl.currentTime / audioEl.duration) * 100;
+                            barEl.style.width = `${percent}%`;
+                        }
+                    };
+                    audioEl.onended = () => {
+                        const statusEl = document.getElementById(`track-status-${index}`);
+                        const playIcon = document.getElementById(`play-icon-${index}`);
+                        if (statusEl) statusEl.innerText = '재생 완료';
+                        if (playIcon) playIcon.innerHTML = '<svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+                    };
+                }
             });
         }
+
+        window.seekAudio = function(event, index) {
+            const audioEl = document.getElementById(`audio-el-${index}`);
+            if (!audioEl || !audioEl.duration) return;
+            const rect = event.currentTarget.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+            const percent = clickX / width;
+            audioEl.currentTime = percent * audioEl.duration;
+        };
 
         window.toggleTrackAudio = function(index) {
             const audioEl = document.getElementById(`audio-el-${index}`);
@@ -534,11 +694,6 @@
                 if (statusEl) statusEl.innerText = '음악 일시정지됨';
                 if (playIcon) playIcon.innerHTML = '<svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
             }
-
-            audioEl.onended = () => {
-                if (statusEl) statusEl.innerText = '재생 완료';
-                if (playIcon) playIcon.innerHTML = '<svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-            };
         };
 
         function startStep1Sequence() {
@@ -572,7 +727,7 @@
             let bgImgHtml = item.bgImage ? `<div class="absolute inset-0 -z-10 opacity-30"><img src="${item.bgImage}" class="w-full h-full object-cover"></div>` : '';
 
             container.innerHTML = `
-                <div class="relative ${enterClass} text-center w-full py-8 px-4" id="animated-text-item">
+                <div class="relative ${enterClass} text-center w-full py-8 px-4 ${item.fontStyle || ''}" id="animated-text-item">
                     ${bgImgHtml}
                     <h2 class="${item.fontSize || 'text-3xl'} ${item.fontWeight || 'font-bold'} ${item.textColor || 'text-white'} tracking-tight leading-relaxed drop-shadow-lg">
                         ${item.text}
@@ -719,7 +874,6 @@
             switchPage('main');
         };
 
-        // File upload helper (converts local file to base64 string for instant preview & storage)
         window.handleFileUpload = function(event, targetInputId) {
             const file = event.target.files[0];
             if (!file) return;
@@ -731,7 +885,6 @@
             reader.readAsDataURL(file);
         };
 
-        // Admin Modal Controls & Tabs
         window.openAdminLoginModal = function() {
             document.getElementById('admin-pw-input').value = '';
             document.getElementById('admin-login-modal').classList.remove('hidden');
@@ -768,13 +921,24 @@
 
         window.openAdminEditModal = function() {
             document.getElementById('edit-splash-tag').value = window.appConfig.splashTag || '';
+            document.getElementById('edit-splash-tag-font').value = window.appConfig.splashTagFont || 'font-sans-custom';
+
             document.getElementById('edit-splash-title').value = window.appConfig.splashTitle || '';
+            document.getElementById('edit-splash-title-font').value = window.appConfig.splashTitleFont || 'font-sans-custom';
+
             document.getElementById('edit-splash-subtitle').value = window.appConfig.splashSubtitle || '';
+            document.getElementById('edit-splash-sub-font').value = window.appConfig.splashSubFont || 'font-sans-custom';
+
             document.getElementById('edit-intro-video').value = window.appConfig.introVideo || '';
             document.getElementById('edit-intro-bgm').value = window.appConfig.introBgmUrl || '';
 
             document.getElementById('edit-main-header').value = window.appConfig.mainHeaderTitle || '';
             document.getElementById('edit-main-subtitle').value = window.appConfig.mainHeaderSubtitle || '';
+
+            document.getElementById('edit-comment-title-text').value = window.appConfig.commentTitleText || '';
+            document.getElementById('edit-comment-title-font').value = window.appConfig.commentTitleFont || 'font-sans-custom';
+            document.getElementById('edit-comment-sub-text').value = window.appConfig.commentSubText || '';
+            document.getElementById('edit-comment-sub-font').value = window.appConfig.commentSubFont || 'font-sans-custom';
 
             document.getElementById('edit-font-family').value = window.appConfig.fontFamily || 'font-sans-custom';
             document.getElementById('edit-color-theme').value = window.appConfig.colorTheme || 'theme-purple';
@@ -808,7 +972,18 @@
                             <input type="text" id="seq-text-${idx}" value="${seq.text || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
                         </div>
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">배경 사진 (경로 또는 파일 선택)</label>
+                            <label class="block text-[11px] text-slate-400 mb-1">개별 폰트 스타일</label>
+                            <select id="seq-font-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="font-sans-custom" ${seq.fontStyle === 'font-sans-custom' ? 'selected' : ''}>Inter (산세리프)</option>
+                                <option value="font-serif-custom" ${seq.fontStyle === 'font-serif-custom' ? 'selected' : ''}>나눔명조 (명조)</option>
+                                <option value="font-mono-custom" ${seq.fontStyle === 'font-mono-custom' ? 'selected' : ''}>JetBrains Mono (테크니컬)</option>
+                                <option value="font-cinzel-custom" ${seq.fontStyle === 'font-cinzel-custom' ? 'selected' : ''}>Cinzel (신화적)</option>
+                                <option value="font-gugi-custom" ${seq.fontStyle === 'font-gugi-custom' ? 'selected' : ''}>구기 (Gugi)</option>
+                                <option value="font-black-sans-custom" ${seq.fontStyle === 'font-black-sans-custom' ? 'selected' : ''}>블랙한산스 (Black Han Sans)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">배경 사진 (경로 또는 파일)</label>
                             <div class="flex gap-2">
                                 <input type="text" id="seq-bg-${idx}" value="${seq.bgImage || ''}" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs" placeholder="image1.png">
                                 <input type="file" id="file-seq-${idx}" onchange="handleFileUpload(event, 'seq-bg-${idx}')" class="hidden">
@@ -845,11 +1020,12 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">폰트 두께/스타일</label>
+                            <label class="block text-[11px] text-slate-400 mb-1">폰트 두께/스타일 (볼드/이텔릭)</label>
                             <select id="seq-weight-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
-                                <option value="font-normal" ${seq.fontWeight === 'font-normal' ? 'selected' : ''}>일반</option>
-                                <option value="font-bold" ${seq.fontWeight === 'font-bold' ? 'selected' : ''}>볼드</option>
+                                <option value="font-normal" ${seq.fontWeight === 'font-normal' ? 'selected' : ''}>일반 (Normal)</option>
+                                <option value="font-bold" ${seq.fontWeight === 'font-bold' ? 'selected' : ''}>볼드 (Bold)</option>
                                 <option value="font-extrabold" ${seq.fontWeight === 'font-extrabold' ? 'selected' : ''}>엑스트라 볼드</option>
+                                <option value="italic font-normal" ${seq.fontWeight === 'italic font-normal' ? 'selected' : ''}>이텔릭 (Italic)</option>
                                 <option value="italic font-bold" ${seq.fontWeight === 'italic font-bold' ? 'selected' : ''}>이텔릭 + 볼드</option>
                             </select>
                         </div>
@@ -871,7 +1047,7 @@
         window.addTextSequenceItem = function() {
             if (!window.appConfig.textSequences) window.appConfig.textSequences = [];
             window.appConfig.textSequences.push({
-                text: "새로운 문구", enterEffect: "fade", exitEffect: "fade", duration: 2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: ""
+                text: "새로운 문구", enterEffect: "fade", exitEffect: "fade", duration: 2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", fontStyle: "font-sans-custom", bgImage: ""
             });
             renderAdminSequencesEditor();
         };
@@ -904,7 +1080,29 @@
                             <input type="text" id="track-scene-${idx}" value="${track.scene || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
                         </div>
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">썸네일 이미지 (경로 또는 파일 선택)</label>
+                            <label class="block text-[11px] text-slate-400 mb-1">트랙 제목 폰트 스타일</label>
+                            <select id="track-title-font-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="font-sans-custom" ${track.titleFontStyle === 'font-sans-custom' ? 'selected' : ''}>Inter</option>
+                                <option value="font-serif-custom" ${track.titleFontStyle === 'font-serif-custom' ? 'selected' : ''}>나눔명조</option>
+                                <option value="font-mono-custom" ${track.titleFontStyle === 'font-mono-custom' ? 'selected' : ''}>JetBrains Mono</option>
+                                <option value="font-cinzel-custom" ${track.titleFontStyle === 'font-cinzel-custom' ? 'selected' : ''}>Cinzel</option>
+                                <option value="font-gugi-custom" ${track.titleFontStyle === 'font-gugi-custom' ? 'selected' : ''}>구기 (Gugi)</option>
+                                <option value="font-black-sans-custom" ${track.titleFontStyle === 'font-black-sans-custom' ? 'selected' : ''}>블랙한산스</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">트랙 설명 폰트 스타일</label>
+                            <select id="track-desc-font-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="font-sans-custom" ${track.descFontStyle === 'font-sans-custom' ? 'selected' : ''}>Inter</option>
+                                <option value="font-serif-custom" ${track.descFontStyle === 'font-serif-custom' ? 'selected' : ''}>나눔명조</option>
+                                <option value="font-mono-custom" ${track.descFontStyle === 'font-mono-custom' ? 'selected' : ''}>JetBrains Mono</option>
+                                <option value="font-cinzel-custom" ${track.descFontStyle === 'font-cinzel-custom' ? 'selected' : ''}>Cinzel</option>
+                                <option value="font-gugi-custom" ${track.descFontStyle === 'font-gugi-custom' ? 'selected' : ''}>구기 (Gugi)</option>
+                                <option value="font-black-sans-custom" ${track.descFontStyle === 'font-black-sans-custom' ? 'selected' : ''}>블랙한산스</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">썸네일 이미지</label>
                             <div class="flex gap-2">
                                 <input type="text" id="track-image-${idx}" value="${track.image || ''}" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
                                 <input type="file" id="file-track-img-${idx}" onchange="handleFileUpload(event, 'track-image-${idx}')" class="hidden">
@@ -912,7 +1110,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">음악 파일 (경로 또는 파일 선택)</label>
+                            <label class="block text-[11px] text-slate-400 mb-1">음악 파일</label>
                             <div class="flex gap-2">
                                 <input type="text" id="track-audio-${idx}" value="${track.audioUrl || ''}" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
                                 <input type="file" id="file-track-audio-${idx}" onchange="handleFileUpload(event, 'track-audio-${idx}')" class="hidden">
@@ -932,7 +1130,7 @@
         window.addTrackItem = function() {
             if (!window.appConfig.tracks) window.appConfig.tracks = [];
             window.appConfig.tracks.push({
-                title: "새로운 트랙", scene: "장면 이름", description: "트랙 설명을 입력하세요.", image: "", audioUrl: ""
+                title: "새로운 트랙", scene: "장면 이름", description: "트랙 설명을 입력하세요.", image: "", audioUrl: "", titleFontStyle: "font-sans-custom", descFontStyle: "font-sans-custom"
             });
             renderAdminTracksEditor();
         };
@@ -946,13 +1144,24 @@
             let updated = JSON.parse(JSON.stringify(window.appConfig));
 
             updated.splashTag = document.getElementById('edit-splash-tag').value;
+            updated.splashTagFont = document.getElementById('edit-splash-tag-font').value;
+
             updated.splashTitle = document.getElementById('edit-splash-title').value;
+            updated.splashTitleFont = document.getElementById('edit-splash-title-font').value;
+
             updated.splashSubtitle = document.getElementById('edit-splash-subtitle').value;
+            updated.splashSubFont = document.getElementById('edit-splash-sub-font').value;
+
             updated.introVideo = document.getElementById('edit-intro-video').value;
             updated.introBgmUrl = document.getElementById('edit-intro-bgm').value;
 
             updated.mainHeaderTitle = document.getElementById('edit-main-header').value;
             updated.mainHeaderSubtitle = document.getElementById('edit-main-subtitle').value;
+
+            updated.commentTitleText = document.getElementById('edit-comment-title-text').value;
+            updated.commentTitleFont = document.getElementById('edit-comment-title-font').value;
+            updated.commentSubText = document.getElementById('edit-comment-sub-text').value;
+            updated.commentSubFont = document.getElementById('edit-comment-sub-font').value;
 
             updated.fontFamily = document.getElementById('edit-font-family').value;
             updated.colorTheme = document.getElementById('edit-color-theme').value;
@@ -962,6 +1171,7 @@
             seqElements.forEach((_, idx) => {
                 updated.textSequences.push({
                     text: document.getElementById(`seq-text-${idx}`).value,
+                    fontStyle: document.getElementById(`seq-font-${idx}`).value,
                     bgImage: document.getElementById(`seq-bg-${idx}`).value,
                     duration: parseFloat(document.getElementById(`seq-dur-${idx}`).value) || 2,
                     enterEffect: document.getElementById(`seq-enter-${idx}`).value,
@@ -978,6 +1188,8 @@
                 updated.tracks.push({
                     title: document.getElementById(`track-title-${idx}`).value,
                     scene: document.getElementById(`track-scene-${idx}`).value,
+                    titleFontStyle: document.getElementById(`track-title-font-${idx}`).value,
+                    descFontStyle: document.getElementById(`track-desc-font-${idx}`).value,
                     image: document.getElementById(`track-image-${idx}`).value,
                     audioUrl: document.getElementById(`track-audio-${idx}`).value,
                     description: document.getElementById(`track-desc-${idx}`).value
