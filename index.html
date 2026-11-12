@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theater Soundtrack Archive</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 antialiased selection:bg-purple-500 selection:text-white">
+
+    <!-- Top Navigation Bar for General Visitors -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/60 px-4 md:px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse"></span>
+            <span id="nav-header-title" class="text-xs font-bold uppercase tracking-widest text-slate-300">SOUNDTRACK ARCHIVE</span>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-full shadow-lg">
+            <span id="visitor-step-indicator" class="text-xs font-semibold text-purple-400">관람 모드 진행중</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="relative w-full h-full pt-16 overflow-x-hidden">
+
+        <!-- 1) STEP 1 SCREEN (Sequential Text Animation) -->
+        <div id="step1-screen" class="absolute inset-0 z-40 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-1000 px-6">
+            <div id="text-sequence-container" class="max-w-3xl text-center min-h-[160px] flex items-center justify-center"></div>
+            
+            <div class="absolute bottom-8 right-8 z-30 flex items-center gap-3">
+                <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800 text-slate-400 text-xs px-3 py-2 rounded-xl">
+                    순서 진행 중... (<span id="step1-count" class="font-bold text-purple-400">1</span>/<span id="step1-total">3</span>)
+                </div>
+                <button onclick="advanceToStep2()" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-2xl shadow-xl transition flex items-center gap-2 border border-purple-400/30">
+                    <span>다음 오프닝으로</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 2) STEP 2 SCREEN (GIF Intro) -->
+        <div id="step2-screen" class="absolute inset-0 z-40 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-1000 opacity-0 pointer-events-none">
+            <div id="video-wrapper" class="absolute inset-0 w-full h-full overflow-hidden flex items-center justify-center bg-black">
+                <div id="splash-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 z-20 transition-opacity duration-500">
+                    <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p class="text-xs text-purple-300 font-medium tracking-wider">오프닝 미디어 로딩 중...</p>
+                </div>
+                <img id="splash-gif-el" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000" src="" alt="Intro GIF" onload="onSplashLoaded()" onerror="onSplashError()">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-black/30 to-slate-950/40 pointer-events-none z-10"></div>
+            </div>
+
+            <div class="absolute top-16 left-0 right-0 z-20 text-center max-w-2xl mx-auto px-6 pointer-events-none">
+                <span id="txt-splash-tag" class="inline-block text-xs font-bold tracking-widest text-purple-400 uppercase bg-purple-950/70 border border-purple-500/30 px-3 py-1 rounded-full mb-4 shadow-lg backdrop-blur-md">SOUNDTRACK ARCHIVE</span>
+                <h1 id="txt-splash-title" class="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-4 drop-shadow-lg">연극 음악의 세계로</h1>
+                <p id="txt-splash-subtitle" class="text-sm md:text-base text-slate-300 font-medium drop-shadow">오프닝 재생 완료 시 자동으로 메인 페이지로 이동합니다.</p>
+            </div>
+
+            <div class="absolute bottom-8 right-8 z-30 flex items-center gap-3">
+                <div id="splash-timer-badge" class="bg-slate-900/80 backdrop-blur-md border border-slate-800 text-slate-400 text-xs px-3 py-2 rounded-xl hidden">
+                    자동 이동: <span id="timer-count" class="font-bold text-purple-400">15</span>초 후
+                </div>
+                <button onclick="enterMainSite()" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-2xl shadow-xl transition border border-purple-400/30 backdrop-blur-md flex items-center gap-2">
+                    <span>메인으로 입장하기</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3) MAIN PAGE (Music Showcase) -->
+        <div id="main-page" class="relative z-30 min-h-full bg-slate-950 px-4 md:px-6 py-12 transition-opacity duration-700 opacity-0 pointer-events-none">
+            <div class="max-w-2xl mx-auto pt-8">
+                <div class="text-center mb-12">
+                    <h2 id="txt-main-header" class="text-3xl md:text-5xl font-black tracking-tight text-white mb-3">THEATER SOUNDTRACK</h2>
+                    <p id="txt-main-subtitle" class="text-slate-400 text-base md:text-lg">연극 속 음악 아카이브</p>
+                </div>
+                <div id="tracks-grid" class="flex flex-col gap-8 pb-24"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Background Audio Element for Intro -->
+    <audio id="intro-bgm-audio" loop preload="auto"></audio>
+
+    <script>
+        const DEFAULT_CONFIG = {
+            transitionEffect: "fade",
+            introBgmUrl: "./assets/audio/intro-bgm.mp3",
+            textSequences: [
+                { text: "많은 분들이 모르고 넘어가는 사실..", enterEffect: "fade", exitEffect: "fade", fontSize: "text-3xl md:text-5xl", fontWeight: "font-extrabold", textColor: "text-white", textAlign: "text-center", duration: 4 },
+                { text: "작품에 나오는 모든 음악은 사실..", enterEffect: "slide", exitEffect: "slide", fontSize: "text-3xl md:text-5xl", fontWeight: "font-bold", textColor: "text-purple-200", textAlign: "text-center", duration: 4 },
+                { text: "이 작품만을 위해 작곡되었다는 사실..", enterEffect: "zoom", exitEffect: "zoom", fontSize: "text-3xl md:text-5xl", fontWeight: "font-black", textColor: "text-indigo-200", textAlign: "text-center", duration: 4 }
+            ],
+            introVideo: "https://drive.google.com/file/d/1eDjxC26WIK_AZUcQo3L-lVj9vnA9OAo2/view?usp=drive_link",
+            introVideoFit: "cover",
+            introVideoPosition: "center",
+            splashDuration: 15,
+            splashTag: "SOUNDTRACK ARCHIVE",
+            splashTitle: "연극 음악의 세계로",
+            splashSubtitle: "오프닝 재생 완료 시 자동으로 메인 페이지로 이동합니다.",
+            mainHeaderTitle: "THEATER SOUNDTRACK",
+            mainHeaderSubtitle: "연극 속 음악 아카이브",
+            tracks: [
+                { title: "Track 01. Overture : 시작의 서곡", scene: "1막 오프닝 장면", description: "관객을 연극 속 환상의 공간으로 이끄는 웅장한 오프닝 테마 곡입니다.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+1", audioUrl: "./assets/audio/track1.mp3" },
+                { title: "Track 02. Waltz in Moonlight : 달빛 왈츠", scene: "2막 무도회 장면", description: "주인공들의 엇갈린 감정과 로맨틱한 분위기를 극대화하는 감미로운 왈츠 선율입니다.", image: "https://placehold.co/600x400/311042/f3e8ff?text=Scene+2", audioUrl: "./assets/audio/track2.mp3" }
+            ]
+        };
+
+        let savedConfig = null;
+        try {
+            savedConfig = JSON.parse(localStorage.getItem('theater_soundtrack_config_v6'));
+        } catch (e) {
+            savedConfig = null;
+        }
+        if (!savedConfig || !savedConfig.textSequences || savedConfig.textSequences.length === 0) {
+            savedConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        }
+        let appConfig = savedConfig;
+
+        let currentStepIndex = 0;
+        let step1Timer = null;
+
+        function applyConfigToDOM() {
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = val || '';
+            };
+
+            setVal('txt-splash-tag', appConfig.splashTag || DEFAULT_CONFIG.splashTag);
+            setVal('txt-splash-title', appConfig.splashTitle || DEFAULT_CONFIG.splashTitle);
+            setVal('txt-splash-subtitle', appConfig.splashSubtitle || DEFAULT_CONFIG.splashSubtitle);
+            setVal('nav-header-title', appConfig.splashTag || DEFAULT_CONFIG.splashTag);
+            setVal('txt-main-header', appConfig.mainHeaderTitle || DEFAULT_CONFIG.mainHeaderTitle);
+            setVal('txt-main-subtitle', appConfig.mainHeaderSubtitle || DEFAULT_CONFIG.mainHeaderSubtitle);
+
+            const gifEl = document.getElementById('splash-gif-el');
+            if (gifEl) {
+                gifEl.style.objectFit = appConfig.introVideoFit || 'cover';
+                gifEl.style.objectPosition = appConfig.introVideoPosition || 'center';
+            }
+
+            const introBgmEl = document.getElementById('intro-bgm-audio');
+            if (introBgmEl && appConfig.introBgmUrl) {
+                if (introBgmEl.src !== appConfig.introBgmUrl) {
+                    introBgmEl.src = appConfig.introBgmUrl;
+                    introBgmEl.load();
+                }
+            }
+
+            renderTracks();
+        }
+
+        function renderTracks() {
+            const grid = document.getElementById('tracks-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            (appConfig.tracks || []).forEach((track, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col w-full group';
+                card.innerHTML = `
+                    <div class="relative w-full aspect-video md:aspect-[16/9] overflow-hidden bg-slate-950 cursor-pointer" onclick="toggleTrackAudio(${index})">
+                        <img src="${track.image || 'https://placehold.co/600x400/1e1b4b/e9d5ff?text=No+Image'}" alt="${track.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x400/1e1b4b/e9d5ff?text=Image+Error'">
+                        <div class="absolute inset-0 bg-black/30 hover:bg-black/10 transition flex items-center justify-center">
+                            <div id="play-icon-${index}" class="w-16 h-16 rounded-full bg-purple-600/90 text-white flex items-center justify-center shadow-2xl backdrop-blur-md transform group-hover:scale-110 transition">
+                                <svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="absolute top-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-purple-300 text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                            ${track.scene || '장면'}
+                        </div>
+                    </div>
+                    <div class="p-6 md:p-8 flex flex-col space-y-4">
+                        <div>
+                            <h4 class="text-xl font-bold text-white mb-2">${track.title}</h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">${track.description}</p>
+                        </div>
+                        <div class="pt-2">
+                            ${track.audioUrl ? `
+                                <audio id="audio-el-${index}" class="hidden" src="${track.audioUrl}" preload="none"></audio>
+                                <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-950/60 border border-slate-800/80 px-4 py-3 rounded-2xl">
+                                    <span id="track-status-${index}">음악 재생 대기중</span>
+                                    <button onclick="toggleTrackAudio(${index})" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl transition shadow-md">
+                                        재생 / 일시정지
+                                    </button>
+                                </div>
+                            ` : `
+                                <div class="text-xs text-slate-500 italic py-2 text-center bg-slate-950/40 rounded-xl border border-slate-800">등록된 오디오가 없습니다.</div>
+                            `}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleTrackAudio(index) {
+            const audioEl = document.getElementById(`audio-el-${index}`);
+            const statusEl = document.getElementById(`track-status-${index}`);
+            const playIcon = document.getElementById(`play-icon-${index}`);
+            if (!audioEl) return;
+
+            document.querySelectorAll('audio[id^="audio-el-"]').forEach((el, idx) => {
+                if (idx !== index) {
+                    el.pause();
+                    const otherIcon = document.getElementById(`play-icon-${idx}`);
+                    const otherStatus = document.getElementById(`track-status-${idx}`);
+                    if (otherIcon) otherIcon.innerHTML = '<svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+                    if (otherStatus) otherStatus.innerText = '음악 재생 대기중';
+                }
+            });
+
+            if (audioEl.paused) {
+                audioEl.play().then(() => {
+                    if (statusEl) statusEl.innerText = '🎵 음악 재생 중...';
+                    if (playIcon) playIcon.innerHTML = '<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+                }).catch(e => {
+                    if (statusEl) statusEl.innerText = '재생 오류 (파일 경로 확인)';
+                });
+            } else {
+                audioEl.pause();
+                if (statusEl) statusEl.innerText = '음악 일시정지됨';
+                if (playIcon) playIcon.innerHTML = '<svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            }
+
+            audioEl.onended = () => {
+                if (statusEl) statusEl.innerText = '재생 완료';
+                if (playIcon) playIcon.innerHTML = '<svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            };
+        }
+
+        function startStep1Sequence() {
+            if (step1Timer) clearTimeout(step1Timer);
+            currentStepIndex = 0;
+            renderCurrentTextSequence();
+        }
+
+        function renderCurrentTextSequence() {
+            const container = document.getElementById('text-sequence-container');
+            const countEl = document.getElementById('step1-count');
+            const totalEl = document.getElementById('step1-total');
+            const sequences = appConfig.textSequences || DEFAULT_CONFIG.textSequences;
+
+            if (!container || !totalEl || !countEl) return;
+            totalEl.innerText = sequences.length;
+            countEl.innerText = currentStepIndex + 1;
+
+            if (currentStepIndex >= sequences.length) {
+                advanceToStep2();
+                return;
+            }
+
+            const item = sequences[currentStepIndex];
+            let enterClass = "transition-all duration-700 opacity-0 transform translate-y-6";
+            if (item.enterEffect === 'slide') enterClass = "transition-all duration-700 opacity-0 transform -translate-x-12";
+            else if (item.enterEffect === 'zoom') enterClass = "transition-all duration-700 opacity-0 transform scale-90";
+
+            container.innerHTML = `
+                <div class="${enterClass} ${item.textAlign || 'text-center'}" id="animated-text-item">
+                    <h2 class="${item.fontSize || 'text-3xl'} ${item.fontWeight || 'font-bold'} ${item.textColor || 'text-white'} tracking-tight leading-relaxed drop-shadow-lg">
+                        ${item.text}
+                    </h2>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const el = document.getElementById('animated-text-item');
+                if (el) {
+                    el.classList.remove('opacity-0', 'translate-y-6', '-translate-x-12', 'scale-90');
+                    el.classList.add('opacity-100', 'translate-y-0', 'translate-x-0', 'scale-100');
+                }
+            }, 50);
+
+            const durationMs = (Number(item.duration) || 4) * 1000;
+            step1Timer = setTimeout(() => {
+                const el = document.getElementById('animated-text-item');
+                if (el) {
+                    let exitClass = "opacity-0 translate-y-4";
+                    if (item.exitEffect === 'slide') exitClass = "opacity-0 translate-x-12";
+                    else if (item.exitEffect === 'zoom') exitClass = "opacity-0 scale-110";
+                    el.className += ` transition-all duration-500 ${exitClass}`;
+                }
+                setTimeout(() => {
+                    currentStepIndex++;
+                    renderCurrentTextSequence();
+                }, 500);
+            }, durationMs);
+        }
+
+        function advanceToStep2() {
+            if (step1Timer) clearTimeout(step1Timer);
+            const s1 = document.getElementById('step1-screen');
+            if (s1) {
+                s1.style.transition = "all 1s cubic-bezier(0.4, 0, 0.2, 1)";
+                s1.style.opacity = "0";
+            }
+
+            setTimeout(() => {
+                switchPage('step2');
+                if (s1) {
+                    s1.style.transform = "none";
+                    s1.style.filter = "none";
+                }
+            }, 900);
+        }
+
+        function setupStep2Splash() {
+            const gifEl = document.getElementById('splash-gif-el');
+            const loaderEl = document.getElementById('splash-loader');
+            const timerBadge = document.getElementById('splash-timer-badge');
+            const timerCount = document.getElementById('timer-count');
+
+            if (loaderEl) {
+                loaderEl.style.opacity = '1';
+                loaderEl.style.display = 'flex';
+            }
+            if (gifEl) {
+                gifEl.classList.remove('opacity-100');
+                gifEl.classList.add('opacity-0');
+            }
+
+            if (window.splashTimer) clearTimeout(window.splashTimer);
+            if (window.step2Interval) clearInterval(window.step2Interval);
+
+            if (gifEl) {
+                gifEl.src = appConfig.introVideo || DEFAULT_CONFIG.introVideo;
+                gifEl.style.objectFit = appConfig.introVideoFit || 'cover';
+                gifEl.style.objectPosition = appConfig.introVideoPosition || 'center';
+            }
+
+            const durationSec = (appConfig.splashDuration !== undefined) ? Number(appConfig.splashDuration) : 15;
+            if (durationSec > 0 && timerBadge && timerCount) {
+                timerBadge.classList.remove('hidden');
+                let timeLeft = durationSec;
+                timerCount.innerText = timeLeft;
+
+                window.step2Interval = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft >= 0) timerCount.innerText = timeLeft;
+                }, 1000);
+
+                window.splashTimer = setTimeout(() => {
+                    enterMainSite();
+                }, durationSec * 1000);
+            } else if (timerBadge) {
+                timerBadge.classList.add('hidden');
+            }
+        }
+
+        function onSplashLoaded() {
+            const loaderEl = document.getElementById('splash-loader');
+            const gifEl = document.getElementById('splash-gif-el');
+            if (loaderEl) {
+                loaderEl.style.opacity = '0';
+                setTimeout(() => { loaderEl.style.display = 'none'; }, 500);
+            }
+            if (gifEl) {
+                gifEl.classList.remove('opacity-0');
+                gifEl.classList.add('opacity-100');
+            }
+        }
+
+        function onSplashError() {
+            const loaderEl = document.getElementById('splash-loader');
+            if (loaderEl) {
+                loaderEl.innerHTML = '<p class="text-xs text-red-400 font-medium">GIF 로딩 실패. 링크를 확인해주세요.</p>';
+            }
+        }
+
+        function switchPage(page) {
+            const s1 = document.getElementById('step1-screen');
+            const s2 = document.getElementById('step2-screen');
+            const mainPage = document.getElementById('main-page');
+            const introBgmEl = document.getElementById('intro-bgm-audio');
+
+            if (step1Timer) clearTimeout(step1Timer);
+            if (window.splashTimer) clearTimeout(window.splashTimer);
+            if (window.step2Interval) clearInterval(window.step2Interval);
+
+            if (introBgmEl && appConfig.introBgmUrl) {
+                if (page === 'step1' || page === 'step2') {
+                    if (introBgmEl.paused) {
+                        introBgmEl.play().catch(e => console.log("BGM play error:", e));
+                    }
+                } else if (page === 'main') {
+                    introBgmEl.pause();
+                    introBgmEl.currentTime = 0;
+                }
+            }
+
+            if (s1) { s1.classList.add('opacity-0', 'pointer-events-none'); s1.style.display = 'none'; }
+            if (s2) { s2.classList.add('opacity-0', 'pointer-events-none'); s2.style.display = 'none'; }
+            if (mainPage) { mainPage.classList.add('opacity-0', 'pointer-events-none'); mainPage.style.display = 'none'; }
+
+            if (page === 'step1' && s1) {
+                s1.style.display = 'flex';
+                s1.style.opacity = '1';
+                s1.classList.remove('opacity-0', 'pointer-events-none');
+                s1.classList.add('opacity-100');
+                startStep1Sequence();
+            } else if (page === 'step2' && s2) {
+                s2.style.display = 'flex';
+                s2.classList.remove('opacity-0', 'pointer-events-none');
+                s2.classList.add('opacity-100');
+                setupStep2Splash();
+            } else if (mainPage) {
+                mainPage.style.display = 'block';
+                mainPage.classList.remove('opacity-0', 'pointer-events-none');
+                mainPage.classList.add('opacity-100');
+            }
+        }
+
+        function enterMainSite() {
+            switchPage('main');
+        }
+
+        window.onload = function () {
+            applyConfigToDOM();
+            switchPage('step1');
+        };
+    </script>
+</body>
+</html>
