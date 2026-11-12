@@ -19,15 +19,18 @@
             <span class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse"></span>
             <span id="nav-header-title" class="text-xs font-bold uppercase tracking-widest text-slate-300">SOUNDTRACK ARCHIVE</span>
         </div>
-        <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-full shadow-lg">
-            
+        <div class="flex items-center gap-2">
+            <button onclick="openAdminLoginModal()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold rounded-full shadow transition cursor-pointer flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <span>관리자 모드</span>
+            </button>
         </div>
     </header>
 
     <!-- Main Container -->
     <main class="relative w-full h-full pt-16 overflow-x-hidden">
 
-        <!-- 1) STEP 1 SCREEN (Sequential Text Animation + Persistent Clickable Banner) -->
+        <!-- 1) STEP 1 SCREEN -->
         <div id="step1-screen" class="absolute inset-0 z-40 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-1000 px-6">
             <div id="text-sequence-container" class="max-w-3xl text-center min-h-[160px] flex items-center justify-center"></div>
             
@@ -39,7 +42,7 @@
             </div>
         </div>
 
-        <!-- 2) STEP 2 SCREEN (GIF Intro) -->
+        <!-- 2) STEP 2 SCREEN -->
         <div id="step2-screen" class="absolute inset-0 z-40 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-1000 opacity-0 pointer-events-none">
             <div id="video-wrapper" class="absolute inset-0 w-full h-full overflow-hidden flex items-center justify-center bg-black">
                 <div id="splash-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 z-20 transition-opacity duration-500">
@@ -67,7 +70,7 @@
             </div>
         </div>
 
-        <!-- 3) MAIN PAGE (Music Showcase) -->
+        <!-- 3) MAIN PAGE -->
         <div id="main-page" class="relative z-30 min-h-full bg-slate-950 px-4 md:px-6 py-12 transition-opacity duration-700 opacity-0 pointer-events-none">
             <div class="max-w-2xl mx-auto pt-8">
                 <div class="text-center mb-12">
@@ -80,16 +83,190 @@
 
     </main>
 
+    <!-- Admin Password Modal -->
+    <div id="admin-login-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center px-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl">
+            <h3 class="text-lg font-bold text-white mb-2">관리자 로그인</h3>
+            <p class="text-xs text-slate-400 mb-4">사이트 내용을 수정하려면 관리자 비밀번호를 입력하세요.</p>
+            <input type="password" id="admin-pw-input" placeholder="비밀번호 입력" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm mb-4 focus:outline-none focus:border-purple-500">
+            <div class="flex gap-2">
+                <button onclick="closeAdminLoginModal()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition cursor-pointer">취소</button>
+                <button onclick="verifyAdminPassword()" class="flex-1 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Tabbed Edit Modal -->
+    <div id="admin-edit-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex flex-col px-4 py-6 overflow-y-auto">
+        <div class="max-w-4xl w-full mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl my-auto flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header & Tabs -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-6 shrink-0">
+                <div class="flex items-center gap-3">
+                    <h3 class="text-xl font-bold text-white">⚙️ 통합 관리자 스튜디오</h3>
+                    <div class="flex bg-slate-950 border border-slate-800 p-1 rounded-xl">
+                        <button onclick="switchAdminTab('tab1')" id="btn-tab1" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-white bg-purple-600 cursor-pointer">1페이지 (텍스트 시퀀스)</button>
+                        <button onclick="switchAdminTab('tab2')" id="btn-tab2" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer">2페이지 (오프닝 GIF/인트로)</button>
+                        <button onclick="switchAdminTab('tab3')" id="btn-tab3" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer">3페이지 (메인 트랙/음악)</button>
+                    </div>
+                </div>
+                <button onclick="closeAdminEditModal()" class="text-slate-400 hover:text-white text-sm font-semibold cursor-pointer">✕ 닫기</button>
+            </div>
+
+            <!-- Tab Contents Wrapper -->
+            <div class="overflow-y-auto flex-1 pr-2 space-y-6">
+                
+                <!-- TAB 1: Step 1 Sequences & BG Images -->
+                <div id="admin-tab1-content" class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">1페이지 텍스트 시퀀스 및 배경 사진 관리</h4>
+                        <button onclick="addTextSequenceItem()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer">+ 시퀀스 추가</button>
+                    </div>
+                    <div id="sequences-editor-container" class="space-y-4"></div>
+                </div>
+
+                <!-- TAB 2: Step 2 Splash / Intro Settings -->
+                <div id="admin-tab2-content" class="space-y-6 hidden">
+                    <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">2페이지 오프닝 미디어 설정</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">상단 태그 (splashTag)</label>
+                            <input type="text" id="edit-splash-tag" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 타이틀 (splashTitle)</label>
+                            <input type="text" id="edit-splash-title" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-400 mb-1">오프닝 서브타이틀 (splashSubtitle)</label>
+                            <input type="text" id="edit-splash-subtitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">인트로 GIF 파일명 (깃허브 경로 예: stone.gif)</label>
+                            <input type="text" id="edit-intro-video" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">인트로 BGM 파일명 (예: music1.mp3)</label>
+                            <input type="text" id="edit-intro-bgm" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: Main Tracks & Music -->
+                <div id="admin-tab3-content" class="space-y-6 hidden">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider">3페이지 메인 음악 트랙 목록 관리</h4>
+                        <button onclick="addTrackItem()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer">+ 트랙 추가</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-slate-800">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">메인 페이지 제목</label>
+                            <input type="text" id="edit-main-header" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">메인 페이지 서브타이틀</label>
+                            <input type="text" id="edit-main-subtitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+                    <div id="tracks-editor-container" class="space-y-6"></div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="pt-4 mt-6 border-t border-slate-800 flex items-center justify-between shrink-0">
+                <p class="text-xs text-slate-400">변경사항은 클라우드 DB에 저장되어 모든 기기에 즉시 반영됩니다.</p>
+                <button onclick="saveAdminConfig()" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm rounded-xl shadow-lg transition cursor-pointer">모든 변경사항 저장하기</button>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Background Audio Element for Intro -->
     <audio id="intro-bgm-audio" loop preload="auto"></audio>
 
-    <script>
-        const DEFAULT_CONFIG = {"transitionEffect":"fade","introBgmUrl":"music1.mp3","textSequences":[{"text":"이 극의 모든 음악은","enterEffect":"fade","exitEffect":"fade","duration":2},{"text":"오직","enterEffect":"slide","exitEffect":"zoom","duration":1.2},{"text":"이 공연만을 위해","enterEffect":"slide","exitEffect":"zoom","duration":1.8},{"text":"치밀하게 설계된 작품입니다","enterEffect":"fade","exitEffect":"fade","duration":1.6}],"introVideo":"stone.gif","introVideoFit":"contain","introVideoPosition":"center","splashDuration":60,"splashTag":"WoRRY & CHUXGSEOB & Sigol Monkey","splashTitle":"Music of Sisyphus","splashSubtitle":"시네마틱 + 전자음악 + Sound Scape => 부조리한 감각","mainHeaderTitle":"Sisyphus Soundtracks","mainHeaderSubtitle":"극 속에 음악이 굴러들어가기까지","tracks":[{"title":"Track 01. Lullaby of Inner Child","scene":"1장 찰나의 평화","description":"성년의 지친 일상을 위로하는 자장가입니다. <br><br> 반복되는 일상 속, 성년은 작은 인정을 원동력으로 <br> 무기력한 반복을 이어갑니다.","image":"https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+1+Lullaby+of+Inner+Child","audioUrl":"music2.mp3"},{"title":"Track 02. Endless Drops","scene":"2장 성년의 고뇌","description":"멈춰진 설거지 사이로 스며드는 물방울과 노이즈로 <br> 성년의 균열의 감각을 여는 Sound Scape입니다. <br><br> 급작스런 선택의 기로에 놓인 성년의 감정을 대변합니다.","image":"https://placehold.co/600x400/311042/f3e8ff?text=Scene+2+Endless+Drops","audioUrl":"music3.mp3"},{"title":"Track 03. Gaslighting","scene":"2장 의사의 속삭임","description":"성년의 내면 깊숙히 내재되어 있던 <br> 날카로운 복수의 감각을 일깨우는 전자음악입니다. <br><br> 고민하는 성년을 대하던 의사는 음악과 함께 <br> 마치 성년의 마음을 대변하듯 거칠게 변해갑니다.","image":"https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+3+Gaslighting","audioUrl":"music4.mp3"},{"title":"Track 04. Modern Cowboy","scene":"3장 서부의 무법자 ","description":"카우보이를 현대적으로 풀어낸 IDM입니다. <br><br> 일상으로 돌아온 성년은 모든 것이 다르게 느껴집니다. <br> 대단한 일을 해낸 것 같은, 살아있는 감각.. <br> <br> 순간, 어릴 적 비디오에서 봤던 카우보이가 떠오릅니다. <br> 내가.. 영웅이 된 것 같은 느낌.. ","image":"https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+4+Modern+Cowboy","audioUrl":"music7.mp3"},{"title":"Track 05. You're Not Sisyphus","scene":"4장 성년의 분열","description":"복수를 두고 고민하는 성년에게 내면들이 속삭입니다. <br> <br> 넌 뭘 위해 복수를 하고 싶은거야? 넌 왜 견뎌온거야? <br>거창한 이유따윈 없잖아. 넌 시지프스가 아냐. <br>                  그냥 도망친 겁쟁이지.","image":"https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+5+You're+Not+sisyphus","audioUrl":"music6.mp3"},{"title":"Track 06. Bring Us Home","scene":"5장 성년과 병철","description":"환상 속에서 성년은 아버지를 마주합니다 <br> 껍질이 벗겨진 둘은 똑같이 고통스런 존재일 뿐..<br> <br> 이 부조리한 감각 사이로 <br> 괴로운 세상 속 평안을 바라는 노래가 울려퍼집니다. <br><br> 마치 두 사람을 계속 바라봐 온 것처럼..","image":"https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+6+Bring+Us+Home","audioUrl":"music5.mp3"},{"title":"Ending. 돌멩이의 꿈","scene":"Ending.","description":"우리는 끝 없이 돌을 굴립니다. <br> 괴롭고 힘들게 쉬지않고 끊임없이 <br> 부조리한 이 세상을 견디면서요. <br><br> 하지만, 돌이 바라본 우리는 어떨까요 <br> 어쩌면.. 행복할까요?","image":"https://placehold.co/600x400/1e1b4b/e9d5ff?text=Ending+돌멩이의+꿈","audioUrl":"music8.mp3"}]};
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        let appConfig = DEFAULT_CONFIG;
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKDXd0Kdb0-qJxilBH5Io3303pbMUvi_EQ",
+            authDomain: "sisyphus-ce6dd.firebaseapp.com",
+            projectId: "sisyphus-ce6dd",
+            storageBucket: "sisyphus-ce6dd.appspot.com",
+            messagingSenderId: "995158257278",
+            appId: "1:995158257278:web:9497d46247b853bef7b22f",
+            measurementId: "G-7ES2Z57KB9"
+        };
 
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const DEFAULT_CONFIG = {
+            transitionEffect: "fade",
+            introBgmUrl: "music1.mp3",
+            textSequences: [
+                { text: "이 극의 모든 음악은", enterEffect: "fade", exitEffect: "fade", duration: 2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" },
+                { text: "오직", enterEffect: "slide", exitEffect: "zoom", duration: 1.2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" },
+                { text: "이 공연만을 위해", enterEffect: "slide", exitEffect: "zoom", duration: 1.8, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" },
+                { text: "치밀하게 설계된 작품입니다", enterEffect: "fade", exitEffect: "fade", duration: 1.6, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: "" }
+            ],
+            introVideo: "stone.gif",
+            introVideoFit: "contain",
+            introVideoPosition: "center",
+            splashDuration: 60,
+            splashTag: "WoRRY & CHUXGSEOB & Sigol Monkey",
+            splashTitle: "Music of Sisyphus",
+            splashSubtitle: "시네마틱 + 전자음악 + Sound Scape => 부조리한 감각",
+            mainHeaderTitle: "Sisyphus Soundtracks",
+            mainHeaderSubtitle: "Musics by Artists of Hattiman",
+            tracks: [
+                { title: "Track 01. Lullaby of Inner Child", scene: "1장 찰나의 평화", description: "성년의 지친 일상을 위로하는 자장가입니다. <br><br> 반복되는 일상 속, 성년은 작은 인정을 원동력으로 <br> 무기력한 반복을 이어갑니다.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+1+Lullaby+of+Inner+Child", audioUrl: "music2.mp3" },
+                { title: "Track 02. Endless Drops", scene: "2장 성년의 고뇌", description: "멈춰진 설거지 사이로 스며드는 물방울과 노이즈로 <br> 성년의 균열의 감각을 여는 Sound Scape입니다. <br><br> 급작스런 선택의 기로에 놓인 성년의 감정을 대변합니다.", image: "https://placehold.co/600x400/311042/f3e8ff?text=Scene+2+Endless+Drops", audioUrl: "music3.mp3" },
+                { title: "Track 03. Gaslighting", scene: "2장 의사의 속삭임", description: "성년의 내면 깊숙히 내재되어 있던 <br> 날카로운 복수의 감각을 일깨우는 전자음악입니다. <br><br> 고민하는 성년을 대하던 의사는 음악과 함께 <br> 마치 성년의 마음을 대변하듯 거칠게 변해갑니다.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+3+Gaslighting", audioUrl: "music4.mp3" },
+                { title: "Track 04. Modern Cowboy", scene: "3장 서부의 무법자 ", description: "카우보이를 현대적으로 풀어낸 IDM입니다. <br><br> 일상으로 돌아온 성년은 모든 것이 다르게 느껴집니다. <br> 대단한 일을 해낸 것 같은, 살아있는 감각.. <br> <br> 순간, 어릴 적 비디오에서 봤던 카우보이가 떠오릅니다. <br> 내가.. 영웅이 된 것 같은 느낌.. ", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+4+Modern+Cowboy", audioUrl: "music7.mp3" },
+                { title: "Track 05. You're Not Sisyphus", scene: "4장 성년의 분열", description: "복수를 두고 고민하는 성년에게 내면들이 속삭입니다. <br> <br> 넌 뭘 위해 복수를 하고 싶은거야? 넌 왜 견뎌온거야? <br>거창한 이유따윈 없잖아. 넌 시지프스가 아냐. <br> 그냥 도망친 겁쟁이지.", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+5+You're+Not+sisyphus", audioUrl: "music6.mp3" },
+                { title: "Track 06. Bring Us Home", scene: "5장 성년과 병철", description: "환상 속에서 성년은 아버지를 마주합니다 <br> 껍질이 벗겨진 둘은 똑같이 고통스런 존재일 뿐..<br> <br> 이 부조리한 감각 사이로 <br> 괴로운 세상 속 평안을 바라는 노래가 울려퍼집니다. <br><br> 마치 두 사람을 계속 바라봐 온 것처럼..", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Scene+6+Bring+Us+Home", audioUrl: "music5.mp3" },
+                { title: "Ending. 돌멩이의 꿈", scene: "Ending.", description: "우리는 끝 없이 돌을 굴립니다. <br> 괴롭고 힘들게 쉬지않고 끊임없이 <br> 부조리한 이 세상을 견디면서요. <br><br> 하지만, 돌이 바라본 우리는 어떨까요 <br> 어쩌면.. 행복할까요?", image: "https://placehold.co/600x400/1e1b4b/e9d5ff?text=Ending+돌멩이의+꿈", audioUrl: "music8.mp3" }
+            ]
+        };
+
+        window.appConfig = DEFAULT_CONFIG;
         let currentStepIndex = 0;
         let step1Timer = null;
+
+        async function loadConfigFromFirebase() {
+            try {
+                const docRef = doc(db, "settings", "mainConfig");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    window.appConfig = docSnap.data();
+                } else {
+                    await setDoc(docRef, DEFAULT_CONFIG);
+                    window.appConfig = DEFAULT_CONFIG;
+                }
+            } catch (e) {
+                console.error("Firebase 로딩 실패, 기본값 사용:", e);
+                window.appConfig = DEFAULT_CONFIG;
+            }
+            applyConfigToDOM();
+            switchPage('step1');
+        }
+
+        window.saveAdminConfigToFirebase = async function(newConfigData) {
+            try {
+                const docRef = doc(db, "settings", "mainConfig");
+                await setDoc(docRef, newConfigData);
+                window.appConfig = newConfigData;
+                alert("성공적으로 저장되었습니다!");
+                applyConfigToDOM();
+                closeAdminEditModal();
+            } catch (e) {
+                console.error("저장 실패:", e);
+                alert("저장 중 오류가 발생했습니다.");
+            }
+        };
 
         function applyConfigToDOM() {
             const setVal = (id, val) => {
@@ -97,23 +274,23 @@
                 if (el) el.innerText = val || '';
             };
 
-            setVal('txt-splash-tag', appConfig.splashTag || DEFAULT_CONFIG.splashTag);
-            setVal('txt-splash-title', appConfig.splashTitle || DEFAULT_CONFIG.splashTitle);
-            setVal('txt-splash-subtitle', appConfig.splashSubtitle || DEFAULT_CONFIG.splashSubtitle);
-            setVal('nav-header-title', appConfig.splashTag || DEFAULT_CONFIG.splashTag);
-            setVal('txt-main-header', appConfig.mainHeaderTitle || DEFAULT_CONFIG.mainHeaderTitle);
-            setVal('txt-main-subtitle', appConfig.mainHeaderSubtitle || DEFAULT_CONFIG.mainHeaderSubtitle);
+            setVal('txt-splash-tag', window.appConfig.splashTag || DEFAULT_CONFIG.splashTag);
+            setVal('txt-splash-title', window.appConfig.splashTitle || DEFAULT_CONFIG.splashTitle);
+            setVal('txt-splash-subtitle', window.appConfig.splashSubtitle || DEFAULT_CONFIG.splashSubtitle);
+            setVal('nav-header-title', window.appConfig.splashTag || DEFAULT_CONFIG.splashTag);
+            setVal('txt-main-header', window.appConfig.mainHeaderTitle || DEFAULT_CONFIG.mainHeaderTitle);
+            setVal('txt-main-subtitle', window.appConfig.mainHeaderSubtitle || DEFAULT_CONFIG.mainHeaderSubtitle);
 
             const gifEl = document.getElementById('splash-gif-el');
             if (gifEl) {
-                gifEl.style.objectFit = appConfig.introVideoFit || 'cover';
-                gifEl.style.objectPosition = appConfig.introVideoPosition || 'center';
+                gifEl.style.objectFit = window.appConfig.introVideoFit || 'cover';
+                gifEl.style.objectPosition = window.appConfig.introVideoPosition || 'center';
             }
 
             const introBgmEl = document.getElementById('intro-bgm-audio');
-            if (introBgmEl && appConfig.introBgmUrl) {
-                if (introBgmEl.src !== appConfig.introBgmUrl) {
-                    introBgmEl.src = appConfig.introBgmUrl;
+            if (introBgmEl && window.appConfig.introBgmUrl) {
+                if (introBgmEl.src !== window.appConfig.introBgmUrl) {
+                    introBgmEl.src = window.appConfig.introBgmUrl;
                     introBgmEl.load();
                 }
             }
@@ -125,7 +302,7 @@
             const grid = document.getElementById('tracks-grid');
             if (!grid) return;
             grid.innerHTML = '';
-            (appConfig.tracks || []).forEach((track, index) => {
+            (window.appConfig.tracks || []).forEach((track, index) => {
                 const card = document.createElement('div');
                 card.className = 'bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col w-full group';
                 card.innerHTML = `
@@ -164,7 +341,7 @@
             });
         }
 
-        function toggleTrackAudio(index) {
+        window.toggleTrackAudio = function(index) {
             const audioEl = document.getElementById(`audio-el-${index}`);
             const statusEl = document.getElementById(`track-status-${index}`);
             const playIcon = document.getElementById(`play-icon-${index}`);
@@ -197,21 +374,19 @@
                 if (statusEl) statusEl.innerText = '재생 완료';
                 if (playIcon) playIcon.innerHTML = '<svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
             };
-        }
+        };
 
         function startStep1Sequence() {
             if (step1Timer) clearTimeout(step1Timer);
             currentStepIndex = 0;
             const banner = document.getElementById('step1-banner-wrapper');
-            if (banner) {
-                banner.classList.add('opacity-0', 'pointer-events-none');
-            }
+            if (banner) banner.classList.add('opacity-0', 'pointer-events-none');
             renderCurrentTextSequence();
         }
 
         function renderCurrentTextSequence() {
             const container = document.getElementById('text-sequence-container');
-            const sequences = appConfig.textSequences || DEFAULT_CONFIG.textSequences;
+            const sequences = window.appConfig.textSequences || DEFAULT_CONFIG.textSequences;
 
             if (!container) return;
 
@@ -229,8 +404,11 @@
             if (item.enterEffect === 'slide') enterClass = "transition-all duration-700 opacity-0 transform -translate-x-12";
             else if (item.enterEffect === 'zoom') enterClass = "transition-all duration-700 opacity-0 transform scale-90";
 
+            let bgImgHtml = item.bgImage ? `<div class="absolute inset-0 -z-10 opacity-30"><img src="${item.bgImage}" class="w-full h-full object-cover"></div>` : '';
+
             container.innerHTML = `
-                <div class="${enterClass} ${item.textAlign || 'text-center'}" id="animated-text-item">
+                <div class="relative ${enterClass} text-center w-full py-8 px-4" id="animated-text-item">
+                    ${bgImgHtml}
                     <h2 class="${item.fontSize || 'text-3xl'} ${item.fontWeight || 'font-bold'} ${item.textColor || 'text-white'} tracking-tight leading-relaxed drop-shadow-lg">
                         ${item.text}
                     </h2>
@@ -252,14 +430,13 @@
             }, durationMs);
         }
 
-        function advanceToStep2() {
+        window.advanceToStep2 = function() {
             if (step1Timer) clearTimeout(step1Timer);
             const s1 = document.getElementById('step1-screen');
             if (s1) {
                 s1.style.transition = "all 1s cubic-bezier(0.4, 0, 0.2, 1)";
                 s1.style.opacity = "0";
             }
-
             setTimeout(() => {
                 switchPage('step2');
                 if (s1) {
@@ -267,7 +444,7 @@
                     s1.style.filter = "none";
                 }
             }, 900);
-        }
+        };
 
         function setupStep2Splash() {
             const gifEl = document.getElementById('splash-gif-el');
@@ -288,12 +465,12 @@
             if (window.step2Interval) clearInterval(window.step2Interval);
 
             if (gifEl) {
-                gifEl.src = appConfig.introVideo || DEFAULT_CONFIG.introVideo;
-                gifEl.style.objectFit = appConfig.introVideoFit || 'cover';
-                gifEl.style.objectPosition = appConfig.introVideoPosition || 'center';
+                gifEl.src = window.appConfig.introVideo || DEFAULT_CONFIG.introVideo;
+                gifEl.style.objectFit = window.appConfig.introVideoFit || 'cover';
+                gifEl.style.objectPosition = window.appConfig.introVideoPosition || 'center';
             }
 
-            const durationSec = (appConfig.splashDuration !== undefined) ? Number(appConfig.splashDuration) : 30;
+            const durationSec = (window.appConfig.splashDuration !== undefined) ? Number(window.appConfig.splashDuration) : 30;
             if (durationSec > 0 && timerBadge && timerCount) {
                 timerBadge.classList.remove('hidden');
                 let timeLeft = durationSec;
@@ -312,7 +489,7 @@
             }
         }
 
-        function onSplashLoaded() {
+        window.onSplashLoaded = function() {
             const loaderEl = document.getElementById('splash-loader');
             const gifEl = document.getElementById('splash-gif-el');
             if (loaderEl) {
@@ -323,14 +500,14 @@
                 gifEl.classList.remove('opacity-0');
                 gifEl.classList.add('opacity-100');
             }
-        }
+        };
 
-        function onSplashError() {
+        window.onSplashError = function() {
             const loaderEl = document.getElementById('splash-loader');
             if (loaderEl) {
-                loaderEl.innerHTML = '<p class="text-xs text-red-400 font-medium">Now Loading....</p>';
+                loaderEl.innerHTML = '<p class="text-xs text-red-400 font-medium">미디어 로딩 오류 (경로 확인)</p>';
             }
-        }
+        };
 
         function switchPage(page) {
             const s1 = document.getElementById('step1-screen');
@@ -342,7 +519,7 @@
             if (window.splashTimer) clearTimeout(window.splashTimer);
             if (window.step2Interval) clearInterval(window.step2Interval);
 
-            if (introBgmEl && appConfig.introBgmUrl) {
+            if (introBgmEl && window.appConfig.introBgmUrl) {
                 if (page === 'step1' || page === 'step2') {
                     if (introBgmEl.paused) {
                         introBgmEl.play().catch(e => console.log("BGM play error:", e));
@@ -375,13 +552,257 @@
             }
         }
 
-        function enterMainSite() {
+        window.enterMainSite = function() {
             switchPage('main');
+        };
+
+        // Admin Modal Controls & Tabs
+        window.openAdminLoginModal = function() {
+            document.getElementById('admin-pw-input').value = '';
+            document.getElementById('admin-login-modal').classList.remove('hidden');
+        };
+        window.closeAdminLoginModal = function() {
+            document.getElementById('admin-login-modal').classList.add('hidden');
+        };
+        window.verifyAdminPassword = function() {
+            const pw = document.getElementById('admin-pw-input').value;
+            if (pw === "sisyphus2461") {
+                closeAdminLoginModal();
+                openAdminEditModal();
+            } else {
+                alert("비밀번호가 틀렸습니다.");
+            }
+        };
+
+        window.switchAdminTab = function(tabName) {
+            ['tab1', 'tab2', 'tab3'].forEach(t => {
+                const content = document.getElementById(`admin-${t}-content`);
+                const btn = document.getElementById(`btn-${t}`);
+                if (t === tabName) {
+                    content.classList.remove('hidden');
+                    btn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-white bg-purple-600 cursor-pointer";
+                } else {
+                    content.classList.add('hidden');
+                    btn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer";
+                }
+            });
+        };
+
+        window.openAdminEditModal = function() {
+            // Tab 2 fields
+            document.getElementById('edit-splash-tag').value = window.appConfig.splashTag || '';
+            document.getElementById('edit-splash-title').value = window.appConfig.splashTitle || '';
+            document.getElementById('edit-splash-subtitle').value = window.appConfig.splashSubtitle || '';
+            document.getElementById('edit-intro-video').value = window.appConfig.introVideo || '';
+            document.getElementById('edit-intro-bgm').value = window.appConfig.introBgmUrl || '';
+
+            // Tab 3 fields
+            document.getElementById('edit-main-header').value = window.appConfig.mainHeaderTitle || '';
+            document.getElementById('edit-main-subtitle').value = window.appConfig.mainHeaderSubtitle || '';
+
+            renderAdminSequencesEditor();
+            renderAdminTracksEditor();
+            switchAdminTab('tab1');
+            document.getElementById('admin-edit-modal').classList.remove('hidden');
+        };
+
+        window.closeAdminEditModal = function() {
+            document.getElementById('admin-edit-modal').classList.add('hidden');
+        };
+
+        // Tab 1 Dynamic Sequences Renderer
+        function renderAdminSequencesEditor() {
+            const container = document.getElementById('sequences-editor-container');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            (window.appConfig.textSequences || []).forEach((seq, idx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-3 relative';
+                itemDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-purple-400">시퀀스 #${idx + 1}</span>
+                        <button onclick="removeTextSequenceItem(${idx})" class="text-red-400 hover:text-red-300 text-xs font-semibold cursor-pointer">삭제</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] text-slate-400 mb-1">표출 텍스트</label>
+                            <input type="text" id="seq-text-${idx}" value="${seq.text || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">배경 사진 파일명 (깃허브 경로)</label>
+                            <input type="text" id="seq-bg-${idx}" value="${seq.bgImage || ''}" placeholder="예: image1.png" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">지속 시간 (초)</label>
+                            <input type="number" step="0.1" id="seq-dur-${idx}" value="${seq.duration || 2}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">등장 효과 (Enter)</label>
+                            <select id="seq-enter-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="fade" ${seq.enterEffect === 'fade' ? 'selected' : ''}>Fade</option>
+                                <option value="slide" ${seq.enterEffect === 'slide' ? 'selected' : ''}>Slide</option>
+                                <option value="zoom" ${seq.enterEffect === 'zoom' ? 'selected' : ''}>Zoom</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">퇴장 효과 (Exit)</label>
+                            <select id="seq-exit-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="fade" ${seq.exitEffect === 'fade' ? 'selected' : ''}>Fade</option>
+                                <option value="slide" ${seq.exitEffect === 'slide' ? 'selected' : ''}>Slide</option>
+                                <option value="zoom" ${seq.exitEffect === 'zoom' ? 'selected' : ''}>Zoom</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">글꼴 크기 (Tailwind)</label>
+                            <select id="seq-size-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="text-2xl" ${seq.fontSize === 'text-2xl' ? 'selected' : ''}>2XL</option>
+                                <option value="text-3xl" ${seq.fontSize === 'text-3xl' ? 'selected' : ''}>3XL</option>
+                                <option value="text-4xl" ${seq.fontSize === 'text-4xl' ? 'selected' : ''}>4XL</option>
+                                <option value="text-5xl" ${seq.fontSize === 'text-5xl' ? 'selected' : ''}>5XL</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">폰트 두께/스타일</label>
+                            <select id="seq-weight-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="font-normal" ${seq.fontWeight === 'font-normal' ? 'selected' : ''}>일반 (Normal)</option>
+                                <option value="font-bold" ${seq.fontWeight === 'font-bold' ? 'selected' : ''}>볼드 (Bold)</option>
+                                <option value="font-extrabold" ${seq.fontWeight === 'font-extrabold' ? 'selected' : ''}>엑스트라 볼드</option>
+                                <option value="italic font-bold" ${seq.fontWeight === 'italic font-bold' ? 'selected' : ''}>이텔릭 + 볼드</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">글자 색상</label>
+                            <select id="seq-color-${idx}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                                <option value="text-white" ${seq.textColor === 'text-white' ? 'selected' : ''}>화이트</option>
+                                <option value="text-purple-300" ${seq.textColor === 'text-purple-300' ? 'selected' : ''}>연보라</option>
+                                <option value="text-amber-300" ${seq.textColor === 'text-amber-300' ? 'selected' : ''}>골드/앰버</option>
+                                <option value="text-slate-300" ${seq.textColor === 'text-slate-300' ? 'selected' : ''}>회색빛</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
         }
 
+        window.addTextSequenceItem = function() {
+            if (!window.appConfig.textSequences) window.appConfig.textSequences = [];
+            window.appConfig.textSequences.push({
+                text: "새로운 문구", enterEffect: "fade", exitEffect: "fade", duration: 2, fontSize: "text-3xl", fontWeight: "font-bold", textColor: "text-white", bgImage: ""
+            });
+            renderAdminSequencesEditor();
+        };
+
+        window.removeTextSequenceItem = function(idx) {
+            window.appConfig.textSequences.splice(idx, 1);
+            renderAdminSequencesEditor();
+        };
+
+        // Tab 3 Dynamic Tracks Editor
+        function renderAdminTracksEditor() {
+            const container = document.getElementById('tracks-editor-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            (window.appConfig.tracks || []).forEach((track, idx) => {
+                const trackDiv = document.createElement('div');
+                trackDiv.className = 'bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-3';
+                trackDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-purple-400">트랙 #${idx + 1}</span>
+                        <button onclick="removeTrackItem(${idx})" class="text-red-400 hover:text-red-300 text-xs font-semibold cursor-pointer">트랙 삭제</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">트랙 제목 (Title)</label>
+                            <input type="text" id="track-title-${idx}" value="${track.title || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">장면 (Scene)</label>
+                            <input type="text" id="track-scene-${idx}" value="${track.scene || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">썸네일 이미지 파일명 또는 URL</label>
+                            <input type="text" id="track-image-${idx}" value="${track.image || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">음악 파일명 (깃허브 경로, 예: music2.mp3)</label>
+                            <input type="text" id="track-audio-${idx}" value="${track.audioUrl || ''}" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] text-slate-400 mb-1">트랙 설명 (&lt;br&gt; 태그 활용 가능)</label>
+                            <textarea id="track-desc-${idx}" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">${track.description || ''}</textarea>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(trackDiv);
+            });
+        }
+
+        window.addTrackItem = function() {
+            if (!window.appConfig.tracks) window.appConfig.tracks = [];
+            window.appConfig.tracks.push({
+                title: "새로운 트랙", scene: "장면 이름", description: "트랙 설명을 입력하세요.", image: "", audioUrl: ""
+            });
+            renderAdminTracksEditor();
+        };
+
+        window.removeTrackItem = function(idx) {
+            window.appConfig.tracks.splice(idx, 1);
+            renderAdminTracksEditor();
+        };
+
+        // Master Save Function
+        window.saveAdminConfig = function() {
+            let updated = JSON.parse(JSON.stringify(window.appConfig));
+
+            // Gather Tab 2 values
+            updated.splashTag = document.getElementById('edit-splash-tag').value;
+            updated.splashTitle = document.getElementById('edit-splash-title').value;
+            updated.splashSubtitle = document.getElementById('edit-splash-subtitle').value;
+            updated.introVideo = document.getElementById('edit-intro-video').value;
+            updated.introBgmUrl = document.getElementById('edit-intro-bgm').value;
+
+            // Gather Tab 3 header values
+            updated.mainHeaderTitle = document.getElementById('edit-main-header').value;
+            updated.mainHeaderSubtitle = document.getElementById('edit-main-subtitle').value;
+
+            // Gather Tab 1 Sequences
+            updated.textSequences = [];
+            const seqElements = document.querySelectorAll('#sequences-editor-container > div');
+            seqElements.forEach((_, idx) => {
+                updated.textSequences.push({
+                    text: document.getElementById(`seq-text-${idx}`).value,
+                    bgImage: document.getElementById(`seq-bg-${idx}`).value,
+                    duration: parseFloat(document.getElementById(`seq-dur-${idx}`).value) || 2,
+                    enterEffect: document.getElementById(`seq-enter-${idx}`).value,
+                    exitEffect: document.getElementById(`seq-exit-${idx}`).value,
+                    fontSize: document.getElementById(`seq-size-${idx}`).value,
+                    fontWeight: document.getElementById(`seq-weight-${idx}`).value,
+                    textColor: document.getElementById(`seq-color-${idx}`).value
+                });
+            });
+
+            // Gather Tab 3 Tracks
+            updated.tracks = [];
+            const trackElements = document.querySelectorAll('#tracks-editor-container > div');
+            trackElements.forEach((_, idx) => {
+                updated.tracks.push({
+                    title: document.getElementById(`track-title-${idx}`).value,
+                    scene: document.getElementById(`track-scene-${idx}`).value,
+                    image: document.getElementById(`track-image-${idx}`).value,
+                    audioUrl: document.getElementById(`track-audio-${idx}`).value,
+                    description: document.getElementById(`track-desc-${idx}`).value
+                });
+            });
+
+            window.saveAdminConfigToFirebase(updated);
+        };
+
+        // Initial Load on Page Open
         window.onload = function () {
-            applyConfigToDOM();
-            switchPage('step1');
+            loadConfigFromFirebase();
         };
     </script>
 </body>
