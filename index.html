@@ -14,6 +14,15 @@
         .font-cinzel-custom { font-family: 'Cinzel', serif; }
         .font-gugi-custom { font-family: 'Gugi', cursive; }
         .font-black-sans-custom { font-family: 'Black Han Sans', sans-serif; }
+        
+        /* 스크롤바 완전히 숨기기 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body id="site-body" class="h-full bg-slate-950 text-slate-100 font-sans-custom antialiased selection:bg-purple-500 selection:text-white transition-colors duration-500">
@@ -38,7 +47,6 @@
         <!-- 1) STEP 1 SCREEN -->
         <div id="step1-screen" class="absolute inset-0 z-40 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-1000 px-6">
             
-            <!-- 커스텀 로딩 바 컨테이너 (3초간 가속되면서 차오름) -->
             <div id="custom-loading-wrapper" class="flex flex-col items-center justify-center space-y-4 transition-opacity duration-700">
                 <div class="text-purple-400 font-mono text-xs tracking-widest animate-pulse" id="loading-text">Now Loading... 0%</div>
                 <div class="w-48 h-[2px] bg-slate-800 rounded-full overflow-hidden">
@@ -46,7 +54,6 @@
                 </div>
             </div>
 
-            <!-- 기존 텍스트 시퀀스 컨테이너 (로딩이 끝난 후 나타남) -->
             <div id="text-sequence-container" class="max-w-3xl text-center min-h-[160px] flex items-center justify-center w-full opacity-0 transition-opacity duration-700 pointer-events-none"></div>
             
             <div id="step1-banner-wrapper" class="absolute bottom-8 right-8 z-30 flex items-center gap-3 opacity-0 pointer-events-none transition-opacity duration-700">
@@ -86,16 +93,32 @@
         </div>
 
         <!-- 3) MAIN PAGE -->
-        <div id="main-page" class="relative z-30 min-h-full bg-slate-950 px-4 md:px-6 py-12 transition-opacity duration-700 opacity-0 pointer-events-none">
-            <div class="max-w-2xl mx-auto pt-8">
-                <div class="text-center mb-12">
-                    <h2 id="txt-main-header" class="text-3xl md:text-5xl font-black tracking-tight text-white mb-3">Sisyphus Soundtracks</h2>
-                    <p id="txt-main-subtitle" class="text-slate-400 text-base md:text-lg"> Musics by Artists of Hattiman</p>
+        <div id="main-page" class="relative z-30 min-h-full bg-slate-950 px-4 md:px-6 py-8 transition-opacity duration-700 opacity-0 pointer-events-none">
+            <div class="max-w-3xl mx-auto pt-4">
+                <div class="text-center mb-8">
+                    <h2 id="txt-main-header" class="text-3xl md:text-5xl font-black tracking-tight text-white mb-2">Sisyphus Soundtracks</h2>
+                    <p id="txt-main-subtitle" class="text-slate-400 text-sm md:text-base"> Musics by Artists of Hattiman</p>
                 </div>
                 
-                <!-- Tracks List -->
-                <div id="tracks-grid" class="flex flex-col gap-8 pb-16"></div>
+                <!-- Full-Screen Single Card Carousel Wrapper -->
+                <div class="relative w-full flex items-center mb-8">
+                    <!-- PC 좌측 이전 버튼 -->
+                    <button onclick="scrollTrack(-1)" class="absolute -left-3 md:-left-12 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-900/90 border border-slate-700 text-white flex items-center justify-center shadow-xl hover:bg-purple-600 transition cursor-pointer backdrop-blur-md">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
 
+                    <!-- Tracks Carousel (1개씩 꽉 차게 보이는 컨테이너) -->
+                    <div id="tracks-grid" class="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 w-full no-scrollbar px-1"></div>
+
+                    <!-- PC 우측 다음 버튼 -->
+                    <button onclick="scrollTrack(1)" class="absolute -right-3 md:-right-12 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-900/90 border border-slate-700 text-white flex items-center justify-center shadow-xl hover:bg-purple-600 transition cursor-pointer backdrop-blur-md">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+
+                <!-- 현재 페이지 인디케이터 (점 표시) -->
+                <div id="carousel-dots" class="flex items-center justify-center gap-2 mb-16"></div>
+                
                 <!-- Guestbook / Comments Section -->
                 <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl mb-24 space-y-6">
                     <div>
@@ -630,56 +653,74 @@
 
         function renderTracks() {
             const grid = document.getElementById('tracks-grid');
+            const dotsContainer = document.getElementById('carousel-dots');
             if (!grid) return;
+            
             grid.innerHTML = '';
-            (window.appConfig.tracks || []).forEach((track, index) => {
+            if (dotsContainer) dotsContainer.innerHTML = '';
+
+            const tracks = window.appConfig.tracks || [];
+
+            tracks.forEach((track, index) => {
                 const fitClass = track.objectFit || 'object-contain';
                 const card = document.createElement('div');
-                card.className = `bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col w-full group`;
+                // w-full shrink-0 snap-center로 설정하여 한 화면에 정확히 1개 카드만 꽉 차게 표시
+                card.className = `w-full shrink-0 snap-center px-1`;
                 card.innerHTML = `
-                   <div class="relative w-full aspect-video md:aspect-[16/9] overflow-hidden bg-slate-950 cursor-pointer flex items-center justify-center" onclick="toggleTrackAudio(${index})">
-                        <img src="${track.image || 'https://placehold.co/600x400/1e1b4b/e9d5ff?text=No+Image'}" alt="${track.title}" class="w-full h-full ${fitClass} group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x400/1e1b4b/e9d5ff?text=Image+Error'">
-                        <div class="absolute inset-0 bg-black/30 hover:bg-black/10 transition flex items-center justify-center pointer-events-none">
-                            <div id="play-icon-${index}" class="w-16 h-16 rounded-full bg-blue-950/20 border border-blue-500/20 text-white flex items-center justify-center shadow-2xl backdrop-blur-sm transform group-hover:scale-110 transition pointer-events-auto">
-                                <svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col w-full group">
+                       <div class="relative w-full aspect-video md:aspect-[16/9] overflow-hidden bg-slate-950 cursor-pointer flex items-center justify-center" onclick="toggleTrackAudio(${index})">
+                            <img src="${track.image || 'https://placehold.co/600x400/1e1b4b/e9d5ff?text=No+Image'}" alt="${track.title}" class="w-full h-full ${fitClass} group-hover:scale-105 transition duration-500" onerror="this.src='https://placehold.co/600x400/1e1b4b/e9d5ff?text=Image+Error'">
+                            <div class="absolute inset-0 bg-black/30 hover:bg-black/10 transition flex items-center justify-center pointer-events-none">
+                                <div id="play-icon-${index}" class="w-16 h-16 rounded-full bg-blue-950/20 border border-blue-500/20 text-white flex items-center justify-center shadow-2xl backdrop-blur-sm transform group-hover:scale-110 transition pointer-events-auto">
+                                    <svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                            <div class="absolute top-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                                ${track.scene || '장면'}
                             </div>
                         </div>
-                        <div class="absolute top-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                            ${track.scene || '장면'}
-                        </div>
-                    </div>
-                    <div class="p-6 md:p-8 flex flex-col space-y-4">
-                        <div>
-                            <h4 class="text-xl font-bold text-white mb-2 ${track.titleFontStyle || 'font-sans-custom'}">${track.title}</h4>
-                            <p class="text-[11px] text-slate-300 leading-relaxed ${track.descFontStyle || 'font-sans-custom'}">${track.description}</p>
-                        </div>
-                        <div class="pt-2">
-                            ${track.audioUrl ? `
-                                <audio id="audio-el-${index}" src="${track.audioUrl}" preload="metadata"></audio>
-                                <div class="space-y-2 bg-slate-950/60 border border-slate-800/80 p-4 rounded-2xl">
-                                    <!-- Progress Bar -->
-                                    <div class="flex items-center gap-3">
-                                        <span id="current-time-${index}" class="text-[11px] text-slate-400 w-8 text-right font-mono">0:00</span>
-                                        <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden cursor-pointer relative" onclick="seekAudio(event, ${index})">
-                                            <div id="progress-bar-${index}" class="absolute top-0 left-0 h-full bg-purple-500 w-0 transition-all duration-100"></div>
+                        <div class="p-6 md:p-8 flex flex-col space-y-4">
+                            <div>
+                                <h4 class="text-xl font-bold text-white mb-2 ${track.titleFontStyle || 'font-sans-custom'}">${track.title}</h4>
+                                <p class="text-[11px] text-slate-300 leading-relaxed ${track.descFontStyle || 'font-sans-custom'}">${track.description}</p>
+                            </div>
+                            <div class="pt-2">
+                                ${track.audioUrl ? `
+                                    <audio id="audio-el-${index}" src="${track.audioUrl}" preload="metadata"></audio>
+                                    <div class="space-y-2 bg-slate-950/60 border border-slate-800/80 p-4 rounded-2xl">
+                                        <!-- Progress Bar -->
+                                        <div class="flex items-center gap-3">
+                                            <span id="current-time-${index}" class="text-[11px] text-slate-400 w-8 text-right font-mono">0:00</span>
+                                            <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden cursor-pointer relative" onclick="seekAudio(event, ${index})">
+                                                <div id="progress-bar-${index}" class="absolute top-0 left-0 h-full bg-purple-500 w-0 transition-all duration-100"></div>
+                                            </div>
+                                            <span id="duration-time-${index}" class="text-[11px] text-slate-400 w-8 font-mono">0:00</span>
                                         </div>
-                                        <span id="duration-time-${index}" class="text-[11px] text-slate-400 w-8 font-mono">0:00</span>
+                                        <!-- Status & Controls -->
+                                        <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+                                            <span id="track-status-${index}">음악 재생 대기중</span>
+                                            <button onclick="toggleTrackAudio(${index})" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl transition shadow-md cursor-pointer">
+                                                재생 / 일시정지
+                                            </button>
+                                        </div>
                                     </div>
-                                    <!-- Status & Controls -->
-                                    <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
-                                        <span id="track-status-${index}">음악 재생 대기중</span>
-                                        <button onclick="toggleTrackAudio(${index})" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl transition shadow-md cursor-pointer">
-                                            재생 / 일시정지
-                                        </button>
-                                    </div>
-                                </div>
-                            ` : `
-                                <div class="text-xs text-slate-500 italic py-2 text-center bg-slate-950/40 rounded-xl border border-slate-800">등록된 오디오가 없습니다.</div>
-                            `}
+                                ` : `
+                                    <div class="text-xs text-slate-500 italic py-2 text-center bg-slate-950/40 rounded-xl border border-slate-800">등록된 오디오가 없습니다.</div>
+                                `}
+                            </div>
                         </div>
                     </div>
                 `;
                 grid.appendChild(card);
+
+                // 인디케이터 점 생성
+                if (dotsContainer) {
+                    const dot = document.createElement('button');
+                    dot.id = `carousel-dot-${index}`;
+                    dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer ${index === 0 ? 'bg-purple-500 w-6' : 'bg-slate-700'}`;
+                    dot.onclick = () => scrollToTrackIndex(index);
+                    dotsContainer.appendChild(dot);
+                }
 
                 const audioEl = document.getElementById(`audio-el-${index}`);
                 if (audioEl) {
@@ -704,7 +745,41 @@
                     };
                 }
             });
+
+            // 스크롤 위치에 따라 인디케이터 활성화 상태 동기화
+            if (grid && dotsContainer) {
+                grid.onscroll = () => {
+                    const scrollLeft = grid.scrollLeft;
+                    const cardWidth = grid.clientWidth;
+                    const currentIndex = Math.round(scrollLeft / cardWidth);
+                    tracks.forEach((_, i) => {
+                        const d = document.getElementById(`carousel-dot-${i}`);
+                        if (d) {
+                            if (i === currentIndex) {
+                                d.className = "w-6 h-2.5 rounded-full transition-all duration-300 bg-purple-500 cursor-pointer";
+                            } else {
+                                d.className = "w-2.5 h-2.5 rounded-full transition-all duration-300 bg-slate-700 cursor-pointer";
+                            }
+                        }
+                    });
+                };
+            }
         }
+
+        // 화살표 버튼으로 카드 넘기기 함수
+        window.scrollTrack = function(direction) {
+            const grid = document.getElementById('tracks-grid');
+            if (!grid) return;
+            const cardWidth = grid.clientWidth;
+            grid.scrollBy({ left: direction * cardWidth, behavior: 'smooth' });
+        };
+
+        window.scrollToTrackIndex = function(index) {
+            const grid = document.getElementById('tracks-grid');
+            if (!grid) return;
+            const cardWidth = grid.clientWidth;
+            grid.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+        };
 
         window.seekAudio = function(event, index) {
             const audioEl = document.getElementById(`audio-el-${index}`);
@@ -765,14 +840,13 @@
                 barFill.style.width = '0%';
 
                 let startTime = null;
-                const duration = 3000; // 3초 로딩
+                const duration = 3000;
 
                 function animateLoading(timestamp) {
                     if (!startTime) startTime = timestamp;
                     let elapsed = timestamp - startTime;
                     let progress = Math.min(elapsed / duration, 1);
                     
-                    // 점점 빨라지는 가속 효과 (Ease-In)
                     let easedProgress = Math.pow(progress, 2); 
                     let percentage = Math.floor(easedProgress * 100);
 
@@ -782,7 +856,6 @@
                     if (progress < 1) {
                         requestAnimationFrame(animateLoading);
                     } else {
-                        // 로딩 완료 후 로딩바 페이드아웃 및 텍스트 시퀀스 시작
                         loadingWrapper.style.opacity = '0';
                         setTimeout(() => {
                             loadingWrapper.classList.add('pointer-events-none');
